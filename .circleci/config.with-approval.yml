@@ -6,6 +6,9 @@
 # Context: aws-oidc
 #   AWS_ACCOUNT_ID, AWS_REGION, AWS_ROLE_ARN
 #
+# Context: private-slack
+#   SLACK_ACCESS_TOKEN, SLACK_DEFAULT_CHANNEL  (Slack orb セットアップ済み前提)
+#
 # Project environment variables:
 #   S3_STAGING_BUCKET_NAME, S3_PRODUCTION_BUCKET_NAME  (bucket name, not ARN)
 #   MAGICPOD_API_TOKEN, MAGICPOD_ORGANIZATION, MAGICPOD_PROJECT, MAGICPOD_SETTING_NUMBER
@@ -19,6 +22,7 @@
 version: 2.1
 
 orbs:
+  slack: circleci/slack@5.1.1
   node: circleci/node@7.2.1
   aws-cli: circleci/aws-cli@5.4.1
   aws-s3: circleci/aws-s3@5.0.0
@@ -191,10 +195,20 @@ workflows:
               only:
                 - main
       # Approval は executor を消費しない。E2E 待機コストは e2e-magicpod が負う（設計書 §9）。
+      - slack/on-hold:
+          context:
+            - private-slack
+          requires:
+            - e2e-magicpod
+          filters:
+            branches:
+              only:
+                - main
       - approve-production:
           type: approval
           requires:
             - e2e-magicpod
+            - slack/on-hold
           filters:
             branches:
               only:
