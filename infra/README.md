@@ -58,8 +58,8 @@ OIDC の trust policy は変更不要です（org 既存設定をそのまま利
 
 | Output | Context 変数名（例） |
 |---|---|
-| `StagingBucketName` | `STAGING_BUCKET` |
-| `ProductionBucketName` | `PRODUCTION_BUCKET` |
+| `StagingBucketName` | `S3_STAGING_BUCKET_NAME`（バケット名。ARN ではない） |
+| `ProductionBucketName` | `S3_PRODUCTION_BUCKET_NAME`（バケット名。ARN ではない） |
 | `StagingWebsiteUrl` | MagicPod テスト設定のベース URL |
 | `ProductionWebsiteUrl` | 本番確認用 |
 

@@ -4,7 +4,7 @@
 #   AWS_ACCOUNT_ID, AWS_REGION, AWS_ROLE_ARN
 #
 # Project environment variables:
-#   STAGING_BUCKET, PRODUCTION_BUCKET
+#   S3_STAGING_BUCKET_NAME, S3_PRODUCTION_BUCKET_NAME  (bucket name, not ARN)
 #   MAGICPOD_API_TOKEN, MAGICPOD_ORGANIZATION, MAGICPOD_PROJECT, MAGICPOD_SETTING_NUMBER
 #
 # MagicPod browser E2E: https://support.magic-pod.com/hc/ja/articles/4408910495897
@@ -41,12 +41,12 @@ commands:
   sync-publish-to-s3:
     description: Sync the publish workspace artifact to an S3 static website bucket.
     parameters:
-      bucket:
+      bucket_name:
         type: string
     steps:
       - aws-s3/sync:
           from: publish
-          to: s3://<< parameters.bucket >>/
+          to: s3://<< parameters.bucket_name >>/
           arguments: "--delete --exact-timestamps"
 
 jobs:
@@ -77,13 +77,11 @@ jobs:
           at: .
       - assume-aws-role
       - sync-publish-to-s3:
-          bucket: ${STAGING_BUCKET}
+          bucket_name: ${S3_STAGING_BUCKET_NAME}
 
   e2e-magicpod:
-    executor:
-      name: aws-cli/default
-      tag: current
-      resource_class: small
+    executor: aws-cli/default
+    resource_class: small
     steps:
       - run:
           name: Run MagicPod browser tests against staging
@@ -105,7 +103,7 @@ jobs:
           at: .
       - assume-aws-role
       - sync-publish-to-s3:
-          bucket: ${PRODUCTION_BUCKET}
+          bucket_name: ${S3_PRODUCTION_BUCKET_NAME}
 
 workflows:
   release:
