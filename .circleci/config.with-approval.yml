@@ -152,7 +152,7 @@ jobs:
             unzip -q magicpod-api-client.zip
             export MAGICPOD_ORGANIZATION="${MAGICPOD_ORGANIZATION}"
             export MAGICPOD_PROJECT="${MAGICPOD_PROJECT}"
-            ./magicpod-api-client batch-run -S "${MAGICPOD_SETTING_NUMBER}"
+            ./magicpod-api-client batch-run -n -S "${MAGICPOD_SETTING_NUMBER}"
 
   deploy-production:
     executor: aws-cli/default
