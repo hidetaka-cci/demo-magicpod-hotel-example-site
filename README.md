@@ -36,6 +36,12 @@ This site provides mocked booking hotel feature. It has input forms to log in, s
 - Do NOT use this site for stress testing.
 - We do not take any responsibilities by using this site.
 
+### Infrastructure (AWS CDK)
+
+This demo fork includes AWS CDK stacks for staging / production S3 static website hosting (no CloudFront). CircleCI OIDC and deploy IAM roles are managed at the AWS account level, not in this repo.
+
+See [infra/README.md](./infra/README.md) for bootstrap steps (`cdk bootstrap`, `cdk deploy`) and bucket outputs for account IAM grants.
+
 ### Running Server
 
 For development, you can serve this site locally using webpack.
