@@ -1,0 +1,142 @@
+# MagicPod × CircleCI: build → staging → E2E gate → production
+#
+# Context: aws-oidc
+#   AWS_ACCOUNT_ID, AWS_REGION, AWS_ROLE_ARN
+#
+# Project environment variables:
+#   STAGING_BUCKET, PRODUCTION_BUCKET
+#   MAGICPOD_API_TOKEN, MAGICPOD_ORGANIZATION, MAGICPOD_PROJECT, MAGICPOD_SETTING_NUMBER
+#
+# MagicPod browser E2E: https://support.magic-pod.com/hc/ja/articles/4408910495897
+# OIDC: attach aws-oidc context to deploy jobs so CIRCLE_OIDC_TOKEN is available.
+
+version: 2.1
+
+orbs:
+  node: circleci/node@7.2.1
+  aws-cli: circleci/aws-cli@5.4.1
+  aws-s3: circleci/aws-s3@5.0.0
+
+commands:
+  prepare-publish-artifact:
+    description: >
+      Build once, ship the same tree to staging and production.
+      File selection matches .github/workflows/static.yml (Upload artifact).
+    steps:
+      - run:
+          name: Prepare publish directory
+          command: |
+            mkdir -p publish
+            cp -r index.html ja en-US data dist publish/
+
+  assume-aws-role:
+    description: Assume an AWS IAM role via CircleCI OIDC (aws-oidc context).
+    steps:
+      - aws-cli/setup:
+          role_arn: ${AWS_ROLE_ARN}
+          region: ${AWS_REGION}
+          role_session_name: ${CIRCLE_JOB}-${CIRCLE_BUILD_NUM}
+          session_duration: "3600"
+
+  sync-publish-to-s3:
+    description: Sync the publish workspace artifact to an S3 static website bucket.
+    parameters:
+      bucket:
+        type: string
+    steps:
+      - aws-s3/sync:
+          from: publish
+          to: s3://<< parameters.bucket >>/
+          arguments: "--delete --exact-timestamps"
+
+jobs:
+  build:
+    executor:
+      name: node/default
+      tag: "24.12"
+      resource_class: medium
+    steps:
+      - checkout
+      - node/install-pnpm:
+          version: "11.0.0"
+      - node/install-packages:
+          pkg-manager: pnpm
+      - run:
+          name: Build static site
+          command: pnpm run build
+      - prepare-publish-artifact
+      - persist_to_workspace:
+          root: .
+          paths:
+            - publish
+
+  deploy-staging:
+    executor: aws-cli/default
+    steps:
+      - attach_workspace:
+          at: .
+      - assume-aws-role
+      - sync-publish-to-s3:
+          bucket: ${STAGING_BUCKET}
+
+  e2e-magicpod:
+    executor:
+      name: aws-cli/default
+      tag: current
+      resource_class: small
+    steps:
+      - run:
+          name: Run MagicPod browser tests against staging
+          command: |
+            set -e
+            OS=linux
+            curl -L "https://app.magicpod.com/api/v1.0/magicpod-clients/api/${OS}/latest/" \
+              -H "Authorization: Token ${MAGICPOD_API_TOKEN}" \
+              --output magicpod-api-client.zip
+            unzip -q magicpod-api-client.zip
+            export MAGICPOD_ORGANIZATION="${MAGICPOD_ORGANIZATION}"
+            export MAGICPOD_PROJECT="${MAGICPOD_PROJECT}"
+            ./magicpod-api-client batch-run -S "${MAGICPOD_SETTING_NUMBER}"
+
+  deploy-production:
+    executor: aws-cli/default
+    steps:
+      - attach_workspace:
+          at: .
+      - assume-aws-role
+      - sync-publish-to-s3:
+          bucket: ${PRODUCTION_BUCKET}
+
+workflows:
+  release:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - main
+      - deploy-staging:
+          requires:
+            - build
+          context:
+            - aws-oidc
+          filters:
+            branches:
+              only:
+                - main
+      - e2e-magicpod:
+          requires:
+            - deploy-staging
+          filters:
+            branches:
+              only:
+                - main
+      - deploy-production:
+          requires:
+            - e2e-magicpod
+          context:
+            - aws-oidc
+          filters:
+            branches:
+              only:
+                - main

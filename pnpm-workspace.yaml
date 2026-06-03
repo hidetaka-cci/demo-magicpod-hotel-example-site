@@ -1,1 +1,4 @@
+packages:
+  - infra
+
 trustPolicy: no-downgrade

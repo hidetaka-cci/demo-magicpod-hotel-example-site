@@ -36,6 +36,11 @@ mise.local.toml
 .mise/*.local.toml
 mise/*.local.toml
 
+# CDK
+infra/node_modules/
+infra/cdk.out/
+infra/dist/
+
 # Agents
 .claude/
 .codex/
