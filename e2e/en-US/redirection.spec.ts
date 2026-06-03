@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Redirection', () => {
   const BASE_URL_LOCALE = '/en-US';

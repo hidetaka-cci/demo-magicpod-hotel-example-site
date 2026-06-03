@@ -1,12 +1,12 @@
+import {calcTotalBill} from './lib/billing.js';
 import {formatCurrency, formatDateLong, parseDateISO} from './lib/formater.js';
 import {getAdditionalPlanPrice} from './lib/i18n.js';
-import {getTransactionId, deleteTransactionId, redirectToTop} from './lib/session.js';
-import {calcTotalBill} from './lib/billing.js';
 import {t} from './lib/messages.js';
+import {deleteTransactionId, getTransactionId, redirectToTop} from './lib/session.js';
 
 history.replaceState(null, '', 'confirm.html');
 
-$(function() {
+$(() => {
   // load data
   const transactionId = getTransactionId();
   if (!transactionId) {
@@ -62,7 +62,7 @@ $(function() {
   $('#contact').text(contactText);
   $('#comment').text(reservation.comment ? reservation.comment : t('reserve.none'));
 
-  $('#success-modal').on('hidden.bs.modal', function() {
+  $('#success-modal').on('hidden.bs.modal', () => {
     window.close();
   });
 });

@@ -1,6 +1,6 @@
-import {getUser, getSessionUser, logout, redirectToTop} from './lib/session.js';
-import {setValidityMessage} from './lib/validation.js';
 import {t} from './lib/messages.js';
+import {getSessionUser, getUser, logout, redirectToTop} from './lib/session.js';
+import {setValidityMessage} from './lib/validation.js';
 
 const session = getSessionUser();
 
@@ -15,7 +15,7 @@ if (user.preset) {
   redirectToTop();
 }
 
-$(function() {
+$(() => {
   // set file event
   $('#icon').on('change', function() {
     this.setCustomValidity('');
@@ -75,7 +75,7 @@ $(function() {
     if (this.checkValidity()) {
       const file = $('#icon').prop('files')[0];
       const reader = new FileReader();
-      reader.onload = function(event) {
+      reader.onload = (event) => {
         user.icon = {
           'image': event.target.result,
           'width': parseInt($('#zoom').val(), 10),
@@ -93,7 +93,7 @@ $(function() {
     }
   });
 
-  $('#logout-form').on('submit', function() {
+  $('#logout-form').on('submit', () => {
     logout();
   });
 });

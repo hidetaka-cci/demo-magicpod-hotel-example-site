@@ -17,7 +17,7 @@
   <script type="module">
     import { calcTotalBill } from '../src/lib/billing.js';
 
-    QUnit.test('Test total bill', function(assert) {
+    QUnit.test('Test total bill', (assert) => {
       // calcTotalBill(roomBill, date, term, headCount, breakfast, earlyCheckIn, sightseeing) 
       const monday = new Date(2020, 3 - 1, 2);
       const saturday = new Date(2020, 3 - 1, 7);

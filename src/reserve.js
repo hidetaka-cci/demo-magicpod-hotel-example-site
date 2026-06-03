@@ -1,11 +1,11 @@
-import {formatCurrency, formatDateShort, parseDate, formatDateISO} from './lib/formater.js';
-import {getLocale, getAdditionalPlanPrice} from './lib/i18n.js';
-import {getSessionUser, getUser, canDisplayPlan, genTransactionId, redirectToTop} from './lib/session.js';
-import {resetCustomValidity, setValidityMessage, validateDateInput} from './lib/validation.js';
 import {calcTotalBill} from './lib/billing.js';
+import {formatCurrency, formatDateISO, formatDateShort, parseDate } from './lib/formater.js';
+import {getAdditionalPlanPrice, getLocale } from './lib/i18n.js';
 import {t} from './lib/messages.js';
+import {canDisplayPlan, genTransactionId, getSessionUser, getUser, redirectToTop} from './lib/session.js';
+import {resetCustomValidity, setValidityMessage, validateDateInput} from './lib/validation.js';
 
-$(function() {
+$(() => {
   // Check login
   const session = getSessionUser();
   const user = getUser(session);
@@ -20,7 +20,7 @@ $(function() {
 
   // fetch selected plan data
   const url = location.origin + '/data/' + getLocale() + '/plan_data.json?' + Date.now();
-  $.getJSON(url).done(function(data) {
+  $.getJSON(url).done((data) => {
     let plan = null;
     for (let i = 0; i < data.length; i++) {
       if (data[i].id === planId) {

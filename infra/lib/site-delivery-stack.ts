@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import * as s3 from 'aws-cdk-lib/aws-s3';
-import { Construct } from 'constructs';
+import type { Construct } from 'constructs';
 
 export class SiteDeliveryStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -31,7 +31,8 @@ export class SiteDeliveryStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, 'StagingWebsiteUrl', {
       value: stagingBucket.bucketWebsiteUrl,
-      description: 'Public HTTP URL for staging (MagicPod test target base URL)',
+      description:
+        'Public HTTP URL for staging (MagicPod test target base URL)',
     });
 
     new cdk.CfnOutput(this, 'ProductionWebsiteUrl', {

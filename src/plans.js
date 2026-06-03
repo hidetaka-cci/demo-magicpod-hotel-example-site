@@ -1,9 +1,9 @@
 import {formatCurrency} from './lib/formater.js';
 import {getLocale} from './lib/i18n.js';
-import {getSessionUser, getUser, setLoginNavbar, canDisplayPlan} from './lib/session.js';
 import {t} from './lib/messages.js';
+import {canDisplayPlan, getSessionUser, getUser, setLoginNavbar } from './lib/session.js';
 
-$(function() {
+$(() => {
   // Check login
   const session = getSessionUser();
   if (session) {
@@ -13,7 +13,7 @@ $(function() {
 
   // fetch plan data
   const url = location.origin + '/data/' + getLocale() + '/plan_data.json?' + Date.now();
-  $.getJSON(url).done(function(data) {
+  $.getJSON(url).done((data) => {
     let planHtml = '';
     for (let i = 0; i < data.length; i++) {
       if (data[i].id !== 0 && canDisplayPlan(data[i], user)) {

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('マイページ', () => {
   test.describe('定義済みユーザ', () => {

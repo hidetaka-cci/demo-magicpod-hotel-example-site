@@ -1,7 +1,7 @@
-import messageJa from '../../data/ja/message.json';
 import messageEnUS from '../../data/en-US/message.json';
-import userJa from '../../data/ja/user.json';
 import userEnUS from '../../data/en-US/user.json';
+import messageJa from '../../data/ja/message.json';
+import userJa from '../../data/ja/user.json';
 
 const MESSAGES = {
   'ja': messageJa,
@@ -24,16 +24,12 @@ const DATE_LONG_FORMATTER = {
 };
 
 const DATE_SHORT_FORMATTER = {
-  'ja': function(date) {
-    return date.getFullYear() + '/' + pad(date.getMonth() + 1) + '/' + pad(date.getDate());
-  },
-  'en-US': function(date) {
-    return pad(date.getMonth() + 1) + '/' + pad(date.getDate()) + '/' + date.getFullYear();
-  },
+  'ja': (date) => date.getFullYear() + '/' + pad(date.getMonth() + 1) + '/' + pad(date.getDate()),
+  'en-US': (date) => pad(date.getMonth() + 1) + '/' + pad(date.getDate()) + '/' + date.getFullYear(),
 };
 
 const DATE_SHORT_PARSER = {
-  'ja': function(dateString) {
+  'ja': (dateString) => {
     const arr = dateString.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
     if (!arr || arr.length !== 4) {
       return null;
@@ -43,7 +39,7 @@ const DATE_SHORT_PARSER = {
     const date = parseInt(arr[3], 10);
     return new Date(year, month - 1, date);
   },
-  'en-US': function(dateString) {
+  'en-US': (dateString) => {
     const arr = dateString.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
     if (!arr || arr.length !== 4) {
       return null;

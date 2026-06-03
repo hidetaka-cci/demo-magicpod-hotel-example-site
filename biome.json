@@ -1,0 +1,33 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
+  "formatter": {
+    "enabled": false
+  },
+  "files": {
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/node_modules",
+      "!**/infra/cdk.out",
+      "!**/publish",
+      "!**/playwright-report",
+      "!**/test-results",
+      "!**/blob-report",
+      "!**/playwright/.cache",
+      "!**/test",
+      "!**/.vscode"
+    ]
+  },
+  "javascript": {
+    "globals": ["$", "jQuery"]
+  },
+  "assist": {
+    "enabled": false
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  }
+}

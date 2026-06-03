@@ -45,3 +45,7 @@ infra/dist/
 .claude/
 .codex/
 .gemini/
+
+# chunk active sidecar tracking
+.chunk/sidecar.json
+.chunk/sidecar.*.json

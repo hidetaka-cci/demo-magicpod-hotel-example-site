@@ -1,12 +1,12 @@
-import {isValidUser, getSessionUser, login, redirectToTop} from './lib/session.js';
-import {resetCustomValidity, setValidityMessage} from './lib/validation.js';
 import {t} from './lib/messages.js';
+import {getSessionUser, isValidUser, login, redirectToTop} from './lib/session.js';
+import {resetCustomValidity, setValidityMessage} from './lib/validation.js';
 
 const session = getSessionUser();
 if (session) {
   redirectToTop();
 }
-$(function() {
+$(() => {
   // Setup submit event
   $('#login-form').on('submit', function() {
     resetCustomValidity($(this).find('input'));

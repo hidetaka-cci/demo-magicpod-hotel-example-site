@@ -75,7 +75,24 @@ After starting the server, open your browser and navigate to:
 - `http://localhost:8080/en-US/` for the English version
 - `http://localhost:8080/ja/` for the Japanese version
 
+### Fast feedback (lint and unit tests)
+
+This fork adds shift-left checks that run locally in seconds (CircleCI still gates on MagicPod E2E after staging deploy).
+
+| Command              | Role                                                     |
+| -------------------- | -------------------------------------------------------- |
+| `pnpm run fmt:check` | Prettier formatting                                      |
+| `pnpm run lint`      | Biome lint (formatter disabled; Prettier handles format) |
+| `pnpm run test:unit` | Vitest unit tests for `src/lib` business logic           |
+| `pnpm run build`     | webpack production build                                 |
+
+Watch mode for unit tests: `pnpm run test:unit:watch`.
+
+With [chunk](https://github.com/circleci/chunk) configured (`.chunk/config.json`), run the same checks via `chunk validate` on your machine. Remote sidecar validation is optional; use it only after a working snapshot is available.
+
 ### Running Playwright Tests
+
+Playwright covers UI flows end-to-end. Unit tests above target pure logic (billing, plan visibility, date parsing) that E2E exercises only indirectly.
 
 This project provides Playwright E2E tests as an example.
 

@@ -6,9 +6,9 @@ OIDC プロバイダ・Deploy 用 IAM ロール・バケットへの sync 権限
 
 ## 作成されるリソース
 
-| リソース | 用途 |
-|---|---|
-| S3 バケット（staging） | CircleCI `deploy-staging` の sync 先 |
+| リソース                  | 用途                                    |
+| ------------------------- | --------------------------------------- |
+| S3 バケット（staging）    | CircleCI `deploy-staging` の sync 先    |
 | S3 バケット（production） | CircleCI `deploy-production` の sync 先 |
 
 ## 前提
@@ -56,12 +56,12 @@ OIDC の trust policy は変更不要です（org 既存設定をそのまま利
 
 ### 5. CircleCI Context
 
-| Output | Context 変数名（例） |
-|---|---|
-| `StagingBucketName` | `S3_STAGING_BUCKET_NAME`（バケット名。ARN ではない） |
+| Output                 | Context 変数名（例）                                    |
+| ---------------------- | ------------------------------------------------------- |
+| `StagingBucketName`    | `S3_STAGING_BUCKET_NAME`（バケット名。ARN ではない）    |
 | `ProductionBucketName` | `S3_PRODUCTION_BUCKET_NAME`（バケット名。ARN ではない） |
-| `StagingWebsiteUrl` | MagicPod テスト設定のベース URL |
-| `ProductionWebsiteUrl` | 本番確認用 |
+| `StagingWebsiteUrl`    | MagicPod テスト設定のベース URL                         |
+| `ProductionWebsiteUrl` | 本番確認用                                              |
 
 Deploy ロール ARN（`AWS_ROLE_ARN_STAGING` / `AWS_ROLE_ARN_PRODUCTION`）と `AWS_DEFAULT_REGION=ap-northeast-1` は **アカウント既存の値** を Context に設定してください。
 

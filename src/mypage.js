@@ -1,6 +1,6 @@
 import {formatDateLong, parseDateISO} from './lib/formater.js';
-import {getUser, getSessionUser, logout, redirectToTop} from './lib/session.js';
 import {t} from './lib/messages.js';
+import {getSessionUser, getUser, logout, redirectToTop} from './lib/session.js';
 
 const DISPLAY_GENDER = {
   '0': t('user.gender.unregistered'),
@@ -14,7 +14,7 @@ const session = getSessionUser();
 if (!session) {
   redirectToTop();
 }
-$(function() {
+$(() => {
   // load user data
   const user = getUser(session);
   if (!user) {
@@ -48,14 +48,14 @@ $(function() {
     }).appendTo('#icon-holder');
   }
 
-  $('#logout-form').on('submit', function() {
+  $('#logout-form').on('submit', () => {
     logout();
   });
 
   if (!user.preset) {
     $('#icon-link').removeClass('disabled').removeAttr('tabindex').removeAttr('aria-disabled')
     $('#delete-form > button').prop('disabled', false);
-    $('#delete-form').on('submit', function() {
+    $('#delete-form').on('submit', () => {
       if (confirm(t('user.deleteConfirm'))) {
         logout();
         localStorage.removeItem(user.email);

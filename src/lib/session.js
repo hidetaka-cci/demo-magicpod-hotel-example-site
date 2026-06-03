@@ -42,7 +42,7 @@ export function isValidUser(email, password) {
  * @return {string} session user email
  */
 export function getSessionUser() {
-  return document.cookie.replace(/(?:(?:^|.*;\s*)session\s*\=\s*([^;]*).*$)|^.*$/, '$1');
+  return document.cookie.replace(/(?:(?:^|.*;\s*)session\s*=\s*([^;]*).*$)|^.*$/, '$1');
 }
 
 /**
@@ -73,7 +73,7 @@ export function genTransactionId() {
  * @return {string}
  */
 export function getTransactionId() {
-  return document.cookie.replace(/(?:(?:^|.*;\s*)transaction\s*\=\s*([^;]*).*$)|^.*$/, '$1');
+  return document.cookie.replace(/(?:(?:^|.*;\s*)transaction\s*=\s*([^;]*).*$)|^.*$/, '$1');
 }
 
 /**
@@ -104,7 +104,7 @@ export function setLoginNavbar() {
   $('#login-holder').removeClass('d-block').addClass('d-none');
   $('#mypage-holder').removeClass('d-none').addClass('d-block');
   $('#logout-holder').removeClass('d-none').addClass('d-block');
-  $('#logout-form').on('submit', function() {
+  $('#logout-form').on('submit', () => {
     logout();
   });
 }
