@@ -81,10 +81,15 @@ curl -I "<StagingWebsiteUrl>/index.html"
 
 ```bash
 cd infra
+pnpm run fmt:check   # Biome format check
+pnpm run lint        # Biome lint
+pnpm run test:unit   # Vitest (CDK Template assertions)
 pnpm exec tsc --noEmit
 pnpm exec cdk synth
 pnpm exec cdk diff
 ```
+
+CI 用のスタンドアロン設定: [`.circleci/config.infra.yml`](../.circleci/config.infra.yml)（`infra-quality` ワークフロー）。有効化は CircleCI Project Settings → Advanced → Config File Name を `.circleci/config.infra.yml` に設定するか、将来 `config.yml` にマージしてください。
 
 ## Teardown
 

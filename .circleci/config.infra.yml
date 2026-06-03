@@ -1,0 +1,54 @@
+# AWS CDK (infra/) quality gate: Biome format, lint, and Vitest unit tests.
+#
+# This file is standalone — it does not replace .circleci/config.yml (app quality).
+# To run in CircleCI:
+#   Project Settings → Advanced → Config File Name → .circleci/config.infra.yml
+# Or merge the infra-quality workflow into config.yml when ready.
+#
+# Commands run from infra/ via node orb app-dir (pnpm workspace member).
+
+version: 2.1
+
+orbs:
+  node: circleci/node@7.2.1
+
+executors:
+  node-pnpm:
+    docker:
+      - image: cimg/node:24.12
+    resource_class: medium
+
+workflows:
+  infra-quality:
+    jobs:
+      - node/run:
+          name: infra-fmt-check
+          executor: node-pnpm
+          app-dir: infra
+          pkg-manager: pnpm
+          pnpm-run: fmt:check
+          include-branch-in-cache-key: false
+          setup:
+            - node/install-pnpm:
+                version: "11.0.0"
+      - node/run:
+          name: infra-lint
+          executor: node-pnpm
+          app-dir: infra
+          pkg-manager: pnpm
+          pnpm-run: lint
+          include-branch-in-cache-key: false
+          setup:
+            - node/install-pnpm:
+                version: "11.0.0"
+      - node/test:
+          name: infra-unit-tests
+          executor: node-pnpm
+          app-dir: infra
+          pkg-manager: pnpm
+          run-command: test:unit
+          test-results-for: other
+          include-branch-in-cache-key: false
+          setup:
+            - node/install-pnpm:
+                version: "11.0.0"

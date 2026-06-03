@@ -1,18 +1,26 @@
 {
-  "name": "hotel-example-site-infra",
-  "private": true,
-  "license": "MIT",
-  "scripts": {
-    "build": "tsc",
-    "cdk": "cdk"
-  },
-  "dependencies": {
-    "aws-cdk-lib": "^2.240.0",
-    "constructs": "^10.5.1"
-  },
-  "devDependencies": {
-    "@types/node": "^24.12.2",
-    "aws-cdk": "^2.1100.0",
-    "typescript": "~5.9.3"
-  }
+	"name": "hotel-example-site-infra",
+	"private": true,
+	"license": "MIT",
+	"scripts": {
+		"build": "tsc",
+		"cdk": "cdk",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"fmt": "biome format --write .",
+		"fmt:check": "biome format .",
+		"test:unit": "vitest run",
+		"test:unit:watch": "vitest"
+	},
+	"dependencies": {
+		"aws-cdk-lib": "^2.240.0",
+		"constructs": "^10.5.1"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.4",
+		"@types/node": "^24.12.2",
+		"aws-cdk": "^2.1100.0",
+		"typescript": "~5.9.3",
+		"vitest": "^4.0.18"
+	}
 }
