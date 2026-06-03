@@ -1,6 +1,7 @@
-# MagicPod × CircleCI: build → staging → E2E gate → production (自動ゲート、付録A 既定)
+# MagicPod × CircleCI: build → staging → E2E gate → manual approval → production
 #
-# 本番前に人手承認を挟む A-1 パターン: config.with-approval.yml を参照。
+# Variant A-1 (付録A): e2e-magicpod の後に type: approval を挟み、人の go/no-go 後に本番へ。
+# 試すときはこのファイルを config.yml にリネームするか、内容を config.yml にマージしてください。
 #
 # Context: aws-oidc
 #   AWS_ACCOUNT_ID, AWS_REGION, AWS_ROLE_ARN
@@ -166,7 +167,7 @@ jobs:
           deploy_name: production
 
 workflows:
-  release:
+  release-with-approval:
     jobs:
       - build:
           filters:
@@ -189,9 +190,18 @@ workflows:
             branches:
               only:
                 - main
-      - deploy-production:
+      # Approval は executor を消費しない。E2E 待機コストは e2e-magicpod が負う（設計書 §9）。
+      - approve-production:
+          type: approval
           requires:
             - e2e-magicpod
+          filters:
+            branches:
+              only:
+                - main
+      - deploy-production:
+          requires:
+            - approve-production
           context:
             - aws-oidc
           filters:
