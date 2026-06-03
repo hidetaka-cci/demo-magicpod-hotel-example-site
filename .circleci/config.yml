@@ -9,6 +9,9 @@
 #
 # MagicPod browser E2E: https://support.magic-pod.com/hc/ja/articles/4408910495897
 # OIDC: attach aws-oidc context to deploy jobs so CIRCLE_OIDC_TOKEN is available.
+#
+# Deploy markers: deploy-staging / deploy-production log releases to CircleCI Deploys
+# (Project Settings → Deploys). Environments: staging, production. Component: hotel-example-site.
 
 version: 2.1
 
@@ -49,6 +52,47 @@ commands:
           to: s3://<< parameters.bucket_name >>/
           arguments: "--delete --exact-timestamps"
 
+  plan-deploy-marker:
+    description: Plan a deploy marker in CircleCI Deploys UI (pending).
+    parameters:
+      deploy_name:
+        type: string
+      environment_name:
+        type: string
+    steps:
+      - run:
+          name: Plan deployment
+          command: |
+            circleci run release plan << parameters.deploy_name >> \
+              --environment-name=<< parameters.environment_name >> \
+              --component-name=hotel-example-site \
+              --target-version="1.0.${CIRCLE_BUILD_NUM}-${CIRCLE_SHA1:0:7}"
+
+  mark-deploy-running:
+    description: Mark planned deploy as running after S3 sync.
+    parameters:
+      deploy_name:
+        type: string
+    steps:
+      - run:
+          name: Update planned deployment to running
+          command: circleci run release update << parameters.deploy_name >> --status=running
+
+  finalize-deploy-marker:
+    description: Mark deploy SUCCESS on job success, FAILED on job failure.
+    parameters:
+      deploy_name:
+        type: string
+    steps:
+      - run:
+          name: Update planned release to SUCCESS
+          command: circleci run release update << parameters.deploy_name >> --status=SUCCESS
+          when: on_success
+      - run:
+          name: Update planned release to FAILED
+          command: circleci run release update << parameters.deploy_name >> --status=FAILED
+          when: on_fail
+
 jobs:
   build:
     executor:
@@ -75,9 +119,16 @@ jobs:
     steps:
       - attach_workspace:
           at: .
+      - plan-deploy-marker:
+          deploy_name: staging
+          environment_name: staging
       - assume-aws-role
       - sync-publish-to-s3:
           bucket_name: ${S3_STAGING_BUCKET_NAME}
+      - mark-deploy-running:
+          deploy_name: staging
+      - finalize-deploy-marker:
+          deploy_name: staging
 
   e2e-magicpod:
     executor: aws-cli/default
@@ -101,9 +152,16 @@ jobs:
     steps:
       - attach_workspace:
           at: .
+      - plan-deploy-marker:
+          deploy_name: production
+          environment_name: production
       - assume-aws-role
       - sync-publish-to-s3:
           bucket_name: ${S3_PRODUCTION_BUCKET_NAME}
+      - mark-deploy-running:
+          deploy_name: production
+      - finalize-deploy-marker:
+          deploy_name: production
 
 workflows:
   release:
