@@ -103,4 +103,3 @@ pnpm exec cdk destroy
 ## 次のステップ（未実装）
 
 - [`.circleci/config.yml`](../.circleci/config.yml) — build → staging → MagicPod E2E → production パイプライン
-- [`run_magicpod_test.sh`](../run_magicpod_test.sh) — MagicPod `batch-run` ラッパー
