@@ -1,4 +1,10 @@
+import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
+import {
+  calendarDateArb,
+  isoDateStringArb,
+  nonIsoDateStringArb,
+} from './test/arbitraries.js';
 import { formatDateISO, parseDateISO } from './formater.js';
 
 describe('formatDateISO', () => {
@@ -25,5 +31,45 @@ describe('formatDateISO / parseDateISO round-trip', () => {
   it('round-trips a calendar date', () => {
     const original = new Date(2026, 11, 31);
     expect(parseDateISO(formatDateISO(original))).toEqual(original);
+  });
+});
+
+describe('property-based', () => {
+  it('round-trips calendar dates', () => {
+    fc.assert(
+      fc.property(calendarDateArb, (date) => {
+        expect(parseDateISO(formatDateISO(date))).toEqual(date);
+      }),
+      { numRuns: 200 },
+    );
+  });
+
+  it('formats dates as zero-padded YYYY-MM-DD', () => {
+    fc.assert(
+      fc.property(calendarDateArb, (date) => {
+        expect(formatDateISO(date)).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      }),
+      { numRuns: 200 },
+    );
+  });
+
+  it('parses formatted ISO strings back to the same date', () => {
+    fc.assert(
+      fc.property(isoDateStringArb, (iso) => {
+        const parsed = parseDateISO(iso);
+        expect(parsed).not.toBeNull();
+        expect(formatDateISO(parsed)).toBe(iso);
+      }),
+      { numRuns: 200 },
+    );
+  });
+
+  it('returns null for strings that do not match the ISO date pattern', () => {
+    fc.assert(
+      fc.property(nonIsoDateStringArb, (s) => {
+        expect(parseDateISO(s)).toBeNull();
+      }),
+      { numRuns: 200 },
+    );
   });
 });
