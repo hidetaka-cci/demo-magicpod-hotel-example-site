@@ -1,0 +1,59 @@
+# Shift-left quality: format, lint, unit tests, and webpack build (node orb).
+# Release deploy (staging → MagicPod → production): deploy.yml
+
+version: 2.1
+
+orbs:
+  node: circleci/node@7.2.1
+
+executors:
+  node-pnpm:
+    docker:
+      - image: cimg/node:24.12
+    resource_class: medium
+
+workflows:
+  build-test-lint:
+    jobs:
+      - node/run:
+          name: fmt-check
+          executor: node-pnpm
+          pkg-manager: pnpm
+          pnpm-run: fmt:check
+          include-branch-in-cache-key: false
+          setup:
+            - node/install-pnpm:
+                version: "11.0.0"
+      - node/run:
+          name: lint
+          executor: node-pnpm
+          pkg-manager: pnpm
+          pnpm-run: lint
+          include-branch-in-cache-key: false
+          setup:
+            - node/install-pnpm:
+                version: "11.0.0"
+      - node/test:
+          name: unit-tests
+          executor: node-pnpm
+          pkg-manager: pnpm
+          run-command: test:unit
+          test-results-for: other
+          include-branch-in-cache-key: false
+          setup:
+            - node/install-pnpm:
+                version: "11.0.0"
+      - node/run:
+          name: build
+          executor: node-pnpm
+          pkg-manager: pnpm
+          pnpm-run: build
+          include-branch-in-cache-key: false
+          artifacts-path: dist
+          setup:
+            - node/install-pnpm:
+                version: "11.0.0"
+          requires:
+            - fmt-check
+            - lint
+            - unit-tests
