@@ -1,4 +1,4 @@
-import {getCurrencyFormatter, getDateLongFormatter, getDateShortFormatter, getDateShortParser} from './i18n.js';
+import {getCurrencyFormatter, getDateLongFormatter, getDateShortFormatter, getDateShortParser, getLocale} from './i18n.js';
 
 /**
  * Format currency
@@ -6,6 +6,14 @@ import {getCurrencyFormatter, getDateLongFormatter, getDateShortFormatter, getDa
  * @return {string} formated text
  */
 export function formatCurrency(num) {
+  if (getLocale() === 'en-US') {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(num);
+  }
   return getCurrencyFormatter().format(num);
 }
 
@@ -24,6 +32,9 @@ export function formatDateLong(date) {
  * @return {string} formated text
  */
 export function formatDateShort(date) {
+  if (getLocale() === 'en-US') {
+    return formatDateISO(date);
+  }
   const formatter = getDateShortFormatter();
   return formatter(date);
 }
@@ -34,6 +45,9 @@ export function formatDateShort(date) {
  * @return {Date} date
  */
 export function parseDate(dateString) {
+  if (getLocale() === 'en-US') {
+    return parseDateISO(dateString);
+  }
   const parser = getDateShortParser();
   return parser(dateString);
 }

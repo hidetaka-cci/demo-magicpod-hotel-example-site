@@ -16,8 +16,8 @@ import {
 } from './formater.js';
 
 describe('formatCurrency', () => {
-  it('formats currency for en-US locale', () => {
-    expect(formatCurrency(100)).toMatch(/\$100/);
+  it('formats currency for en-US locale with two decimal places', () => {
+    expect(formatCurrency(100)).toBe('$100.00');
   });
 });
 
@@ -29,13 +29,13 @@ describe('formatDateLong', () => {
 
 describe('formatDateShort', () => {
   it('formats a date in short locale form', () => {
-    expect(formatDateShort(new Date(2026, 5, 3))).toBe('06/03/2026');
+    expect(formatDateShort(new Date(2026, 5, 3))).toBe('2026-06-03');
   });
 });
 
 describe('parseDate', () => {
   it('parses a short locale date string', () => {
-    expect(parseDate('06/03/2026')).toEqual(new Date(2026, 5, 3));
+    expect(parseDate('2026-06-03')).toEqual(new Date(2026, 5, 3));
   });
 });
 
