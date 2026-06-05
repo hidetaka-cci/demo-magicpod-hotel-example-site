@@ -84,7 +84,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^4.0.18
-        version: 4.1.8(@types/node@24.12.2)(vite@8.0.16(@types/node@24.12.2)(terser@5.46.2))
+        version: 4.1.8(@types/node@24.12.2)(@vitest/coverage-v8@4.1.8)(happy-dom@20.10.1)(vite@8.0.16(@types/node@24.12.2)(terser@5.46.2))
 
 packages:
 
