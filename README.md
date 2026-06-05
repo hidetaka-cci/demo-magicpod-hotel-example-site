@@ -77,22 +77,39 @@ After starting the server, open your browser and navigate to:
 
 ### Fast feedback (lint and unit tests)
 
-This fork adds shift-left checks that run locally in seconds (CircleCI still gates on MagicPod E2E after staging deploy).
+This fork adds shift-left checks before deploy. CI runs unit tests with 100% coverage and property-based tests (~3–4 minutes). In parallel, **Smarter Testing** demonstrates two features from [CircleCI Smarter Testing](https://circleci.com/docs/guides/test/getting-started-with-smarter-testing/):
 
-| Command              | Role                                                     |
-| -------------------- | -------------------------------------------------------- |
-| `pnpm run fmt:check` | Prettier formatting                                      |
-| `pnpm run lint`      | Biome lint (formatter disabled; Prettier handles format) |
-| `pnpm run test:unit` | Vitest unit tests for `src/lib` business logic           |
-| `pnpm run build`     | webpack production build                                 |
+- **`unit-test-smarter`**: [Dynamic Test Splitting](https://circleci.com/docs/guides/test/use-dynamic-test-splitting/) (`parallelism: 4`, `dynamic-test-splitting: true`) plus [Test Impact Analysis](https://circleci.com/docs/guides/test/set-up-test-impact-analysis/) selection (`impacted` tests on PR branches, all tests on `main`). Same `PBT_NUM_RUNS=1200000`; coverage gate stays on `unit-tests`.
+- **`unit-test-analysis`** (`main` only): non-blocking TIA analysis job (`PBT_NUM_RUNS=100` for impact mapping) via `@circleci/vitest-circleci-coverage`.
 
-Watch mode for unit tests: `pnpm run test:unit:watch`.
+UI E2E is handled by MagicPod after staging deploy (Playwright is for local use only).
+
+| Command                           | Role                                                                                  |
+| --------------------------------- | ------------------------------------------------------------------------------------- |
+| `pnpm run fmt:check`              | Prettier formatting                                                                   |
+| `pnpm run lint`                   | Biome lint (formatter disabled; Prettier handles format)                              |
+| `pnpm run test:unit`              | Vitest: `src/**` at 100% coverage + fast-check PBT                                    |
+| `pnpm run test:unit:ci`           | Same as `test:unit` with `PBT_NUM_RUNS=1200000` (CircleCI `unit-tests`)               |
+| `pnpm run test:unit:fast`         | Same suite with `PBT_NUM_RUNS=100` for local feedback in seconds                      |
+| `pnpm run test:smarter:doctor`    | Validate `.circleci/test-suites.yml` (`brew install circleci/tap/circleci-testsuite`) |
+| `pnpm run test:smarter:bootstrap` | First-time: build local impact map (`--analyze-tests=all`)                            |
+| `pnpm run build`                  | webpack production build                                                              |
+
+**CircleCI jobs**
+
+| Job                  | Role                                                                 | Blocks `build`? |
+| -------------------- | -------------------------------------------------------------------- | --------------- |
+| `unit-tests`         | Full suite + `--coverage` + 100% gate, 1 node, ~3–4 min              | Yes             |
+| `unit-test-smarter`  | DTS + TIA selection, 4 nodes; `main` runs all, PRs run impacted only | No              |
+| `unit-test-analysis` | TIA impact map update (`main` only, non-blocking)                    | No              |
+
+Watch mode for unit tests: `pnpm run test:unit:watch`. Override PBT volume locally: `PBT_NUM_RUNS=5000 pnpm run test:unit`.
 
 With [chunk](https://github.com/circleci/chunk) configured (`.chunk/config.json`), run the same checks via `chunk validate` on your machine. Remote sidecar validation is optional; use it only after a working snapshot is available.
 
 ### Running Playwright Tests
 
-Playwright covers UI flows end-to-end. Unit tests above target pure logic (billing, plan visibility, date parsing) that E2E exercises only indirectly.
+Playwright covers UI flows end-to-end locally. CI does not run Playwright; MagicPod exercises the deployed staging site instead. Unit tests above cover all `src/**` logic (billing, validation, page scripts) with example-based and property-based checks.
 
 This project provides Playwright E2E tests as an example.
 

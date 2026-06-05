@@ -1,11 +1,43 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
+import { pbtOptions } from '../../test/helpers/pbt.js';
 import {
   calendarDateArb,
   isoDateStringArb,
   nonIsoDateStringArb,
 } from './test/arbitraries.js';
-import { formatDateISO, parseDateISO } from './formater.js';
+import {
+  formatCurrency,
+  formatDateISO,
+  formatDateLong,
+  formatDateShort,
+  parseDate,
+  parseDateISO,
+} from './formater.js';
+
+describe('formatCurrency', () => {
+  it('formats currency for en-US locale', () => {
+    expect(formatCurrency(100)).toMatch(/\$100/);
+  });
+});
+
+describe('formatDateLong', () => {
+  it('formats a date in long form', () => {
+    expect(formatDateLong(new Date(2026, 5, 3))).toContain('2026');
+  });
+});
+
+describe('formatDateShort', () => {
+  it('formats a date in short locale form', () => {
+    expect(formatDateShort(new Date(2026, 5, 3))).toBe('06/03/2026');
+  });
+});
+
+describe('parseDate', () => {
+  it('parses a short locale date string', () => {
+    expect(parseDate('06/03/2026')).toEqual(new Date(2026, 5, 3));
+  });
+});
 
 describe('formatDateISO', () => {
   it('formats date as YYYY-MM-DD with zero padding', () => {
@@ -40,7 +72,7 @@ describe('property-based', () => {
       fc.property(calendarDateArb, (date) => {
         expect(parseDateISO(formatDateISO(date))).toEqual(date);
       }),
-      { numRuns: 200 },
+      pbtOptions,
     );
   });
 
@@ -49,7 +81,7 @@ describe('property-based', () => {
       fc.property(calendarDateArb, (date) => {
         expect(formatDateISO(date)).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       }),
-      { numRuns: 200 },
+      pbtOptions,
     );
   });
 
@@ -60,7 +92,7 @@ describe('property-based', () => {
         expect(parsed).not.toBeNull();
         expect(formatDateISO(parsed)).toBe(iso);
       }),
-      { numRuns: 200 },
+      pbtOptions,
     );
   });
 
@@ -69,7 +101,7 @@ describe('property-based', () => {
       fc.property(nonIsoDateStringArb, (s) => {
         expect(parseDateISO(s)).toBeNull();
       }),
-      { numRuns: 200 },
+      pbtOptions,
     );
   });
 });

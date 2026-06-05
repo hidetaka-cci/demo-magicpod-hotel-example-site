@@ -1,5 +1,6 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
+import { pbtOptions } from '../../test/helpers/pbt.js';
 import { calcTotalBill } from './billing.js';
 import { billingInputsArb, calendarDateArb } from './test/arbitraries.js';
 
@@ -115,7 +116,7 @@ describe('property-based', () => {
         expect(Number.isFinite(total)).toBe(true);
         expect(total).toBeGreaterThanOrEqual(0);
       }),
-      { numRuns: 200 },
+      pbtOptions,
     );
   });
 
@@ -135,7 +136,7 @@ describe('property-based', () => {
         const base = input.roomBill * input.headCount * input.term;
         expect(total).toBeGreaterThanOrEqual(base);
       }),
-      { numRuns: 200 },
+      pbtOptions,
     );
   });
 
@@ -161,7 +162,7 @@ describe('property-based', () => {
         );
         expect(total).toBe(base + weekend);
       }),
-      { numRuns: 200 },
+      pbtOptions,
     );
   });
 
@@ -188,7 +189,7 @@ describe('property-based', () => {
           expect(higher).toBeGreaterThanOrEqual(lower);
         },
       ),
-      { numRuns: 200 },
+      pbtOptions,
     );
   });
 
@@ -239,7 +240,7 @@ describe('property-based', () => {
         expect(withEarlyCheckIn).toBeGreaterThanOrEqual(withoutAddons);
         expect(withSightseeing).toBeGreaterThanOrEqual(withoutAddons);
       }),
-      { numRuns: 200 },
+      pbtOptions,
     );
   });
 
@@ -277,7 +278,7 @@ describe('property-based', () => {
           );
         },
       ),
-      { numRuns: 200 },
+      pbtOptions,
     );
   });
 });
