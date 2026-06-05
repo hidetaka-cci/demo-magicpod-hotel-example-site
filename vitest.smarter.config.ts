@@ -6,10 +6,7 @@ export default mergeConfig(
   defineConfig({
     test: {
       runner: '@circleci/vitest-circleci-coverage/runner',
-      reporters: [
-        'default',
-        '@circleci/vitest-circleci-coverage/reporter',
-      ],
+      reporters: ['default', '@circleci/vitest-circleci-coverage/reporter'],
       coverage: {
         thresholds: undefined,
       },

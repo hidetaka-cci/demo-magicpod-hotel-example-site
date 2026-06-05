@@ -1,8 +1,8 @@
 name: unit tests
-discover: vitest list --filesOnly --config vitest.smarter.config.ts
-run: vitest run --config vitest.smarter.config.ts --reporter=junit --outputFile="<< outputs.junit >>" --bail 0 << test.atoms >>
+discover: pnpm exec vitest list --filesOnly --config vitest.smarter.config.ts
+run: pnpm exec vitest run --config vitest.smarter.config.ts --reporter=junit --outputFile="<< outputs.junit >>" --bail 0 << test.atoms >>
 analysis: |
-  CIRCLECI_COVERAGE=<< outputs.circleci-coverage >> vitest run \
+  CIRCLECI_COVERAGE=<< outputs.circleci-coverage >> pnpm exec vitest run \
     --config vitest.smarter.config.ts \
     --bail 0 \
     << test.atoms >>
