@@ -1,5 +1,9 @@
 # Shift-left quality: format, lint, unit tests, and webpack build (node orb).
 # Release deploy (staging → MagicPod → production): deploy.yml
+#
+# unit-tests: 100% coverage + full PBT (build gate, 1 node)
+# unit-test-smarter: Smarter Testing — Dynamic Test Splitting + TIA selection (non-blocking)
+# unit-test-analysis: TIA impact map update on main only (non-blocking)
 
 version: 2.1
 
@@ -11,6 +15,42 @@ executors:
     docker:
       - image: cimg/node:24.12
     resource_class: medium
+
+commands:
+  install-pnpm-deps:
+    description: Install pnpm and project dependencies for custom jobs.
+    steps:
+      - node/install-pnpm:
+          version: "11.0.0"
+      - node/install-packages:
+          pkg-manager: pnpm
+          include-branch-in-cache-key: false
+
+jobs:
+  unit-test-smarter:
+    executor: node-pnpm
+    parallelism: 4
+    steps:
+      - checkout
+      - install-pnpm-deps
+      - run:
+          name: Run unit tests (Smarter Testing)
+          command: circleci run testsuite "unit tests" --analyze-tests=none
+          environment:
+            PBT_NUM_RUNS: "1200000"
+      - store_test_results:
+          path: test-reports
+
+  unit-test-analysis:
+    executor: node-pnpm
+    steps:
+      - checkout
+      - install-pnpm-deps
+      - run:
+          name: Update test impact data (TIA analysis)
+          command: circleci run testsuite "unit tests" --select-tests=none --analyze-tests=impacted
+          environment:
+            PBT_NUM_RUNS: "100"
 
 workflows:
   build-test-lint:
@@ -37,14 +77,17 @@ workflows:
           name: unit-tests
           executor: node-pnpm
           pkg-manager: pnpm
-          pnpm-run: test:unit
+          pnpm-run: test:unit:ci
           include-branch-in-cache-key: false
           artifacts-path: coverage
-          environment:
-            PBT_NUM_RUNS: "1200000"
           setup:
             - node/install-pnpm:
                 version: "11.0.0"
+      - unit-test-smarter
+      - unit-test-analysis:
+          filters:
+            branches:
+              only: main
       - node/run:
           name: build
           executor: node-pnpm

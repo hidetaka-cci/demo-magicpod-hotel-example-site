@@ -10,7 +10,10 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "test:unit": "vitest run --coverage",
+    "test:unit:ci": "PBT_NUM_RUNS=1200000 vitest run --coverage",
     "test:unit:fast": "PBT_NUM_RUNS=100 vitest run",
+    "test:smarter:doctor": "circleci run testsuite \"unit tests\" --doctor",
+    "test:smarter:bootstrap": "circleci run testsuite \"unit tests\" --local --select-tests=none --analyze-tests=all",
     "test:unit:watch": "vitest",
     "test": "playwright test",
     "test:headed": "playwright test --headed",
@@ -24,6 +27,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
+    "@circleci/vitest-circleci-coverage": "jsr:^0.1.3",
     "@playwright/test": "^1.59.1",
     "@types/node": "^24.12.2",
     "@vitest/coverage-v8": "^4.1.8",
