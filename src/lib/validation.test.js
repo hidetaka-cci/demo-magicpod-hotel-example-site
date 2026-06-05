@@ -50,7 +50,7 @@ describe('setValidityMessage', () => {
     const input = mountInput({ valueMissing: true });
     setValidityMessage($(input));
     expect($(input).nextAll('.invalid-feedback').text()).toBe(
-      'Please fill out this field.',
+      'This field is required.',
     );
   });
 
@@ -149,12 +149,19 @@ describe('validateDateInput', () => {
     vi.useRealTimers();
   });
 
-  it('returns message for dates beyond 90 days', () => {
+  it('returns message for dates beyond 120 days', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
-    expect(validateDateInput(new Date(2026, 9, 5))).toBe(
-      'Please enter a date within 3 months.',
+    expect(validateDateInput(new Date(2026, 10, 5))).toBe(
+      'Please enter a date within 4 months.',
     );
+    vi.useRealTimers();
+  });
+
+  it('accepts dates within the extended booking window', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
+    expect(validateDateInput(new Date(2026, 8, 15))).toBeUndefined();
     vi.useRealTimers();
   });
 

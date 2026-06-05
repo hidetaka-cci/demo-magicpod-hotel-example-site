@@ -65,12 +65,12 @@ export function validateDateInput(date) {
     return t('validation.badInput');
   } else {
     const now = new Date();
-    const after90 = new Date();
-    after90.setDate(after90.getDate() + 90);
+    const bookingDeadline = new Date();
+    bookingDeadline.setDate(bookingDeadline.getDate() + 120);
     if (date.getTime() < now.getTime()) {
       return t('validation.shoudBeNextDay');
-    } else if (date.getTime() > after90.getTime()) {
-      return t('validation.shouldBeThreeMonth');
+    } else if (date.getTime() > bookingDeadline.getTime()) {
+      return t('validation.shouldBeFourMonth');
     }
   }
 }
