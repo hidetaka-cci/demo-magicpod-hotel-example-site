@@ -1,0 +1,20 @@
+name: unit tests
+discover: vitest list --filesOnly --config vitest.smarter.config.ts
+run: vitest run --config vitest.smarter.config.ts --reporter=junit --outputFile="<< outputs.junit >>" --bail 0 << test.atoms >>
+analysis: |
+  CIRCLECI_COVERAGE=<< outputs.circleci-coverage >> vitest run \
+    --config vitest.smarter.config.ts \
+    --bail 0 \
+    << test.atoms >>
+outputs:
+  junit: test-reports/tests.xml
+  circleci-coverage: coverage.json
+options:
+  test-impact-analysis: true
+  full-test-run-paths:
+    - package.json
+    - pnpm-lock.yaml
+    - vitest.config.ts
+    - vitest.smarter.config.ts
+    - test/helpers/**
+    - .circleci/*.yml

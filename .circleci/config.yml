@@ -1,5 +1,8 @@
 # Shift-left quality: format, lint, unit tests, and webpack build (node orb).
 # Release deploy (staging → MagicPod → production): deploy.yml
+#
+# unit-tests: 100% coverage + full PBT (build gate)
+# unit-test-smarter: Smarter Testing demo (parallel shards + TIA, non-blocking)
 
 version: 2.1
 
@@ -11,6 +14,27 @@ executors:
     docker:
       - image: cimg/node:24.12
     resource_class: medium
+
+jobs:
+  unit-test-smarter:
+    executor: node-pnpm
+    parallelism: 4
+    steps:
+      - checkout
+      - node/install-pnpm:
+          version: "11.0.0"
+      - node/install-packages:
+          pkg-manager: pnpm
+          include-branch-in-cache-key: false
+      - run:
+          name: Run unit tests (Smarter Testing)
+          command: circleci run testsuite "unit tests"
+          environment:
+            PBT_NUM_RUNS: "300000"
+      - store_test_results:
+          path: test-reports
+      - store_artifacts:
+          path: test-reports
 
 workflows:
   build-test-lint:
@@ -37,14 +61,13 @@ workflows:
           name: unit-tests
           executor: node-pnpm
           pkg-manager: pnpm
-          pnpm-run: test:unit
+          pnpm-run: test:unit:ci
           include-branch-in-cache-key: false
           artifacts-path: coverage
-          environment:
-            PBT_NUM_RUNS: "1200000"
           setup:
             - node/install-pnpm:
                 version: "11.0.0"
+      - unit-test-smarter
       - node/run:
           name: build
           executor: node-pnpm

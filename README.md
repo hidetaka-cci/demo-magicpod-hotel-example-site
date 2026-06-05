@@ -77,15 +77,24 @@ After starting the server, open your browser and navigate to:
 
 ### Fast feedback (lint and unit tests)
 
-This fork adds shift-left checks before deploy. CI runs unit tests with 100% coverage and property-based tests (~3–4 minutes). UI E2E is handled by MagicPod after staging deploy (Playwright is for local use only).
+This fork adds shift-left checks before deploy. CI runs unit tests with 100% coverage and property-based tests (~3–4 minutes). A parallel **Smarter Testing** job (`unit-test-smarter`) demonstrates faster runs via test sharding and Test Impact Analysis. UI E2E is handled by MagicPod after staging deploy (Playwright is for local use only).
 
-| Command                   | Role                                                                 |
-| ------------------------- | -------------------------------------------------------------------- |
-| `pnpm run fmt:check`      | Prettier formatting                                                  |
-| `pnpm run lint`           | Biome lint (formatter disabled; Prettier handles format)             |
-| `pnpm run test:unit`      | Vitest: `src/**` at 100% coverage + fast-check PBT (CI-tuned runs)   |
-| `pnpm run test:unit:fast` | Same suite with `PBT_NUM_RUNS=100` for local feedback in seconds       |
-| `pnpm run build`          | webpack production build                                             |
+| Command                      | Role                                                                 |
+| ---------------------------- | -------------------------------------------------------------------- |
+| `pnpm run fmt:check`         | Prettier formatting                                                  |
+| `pnpm run lint`              | Biome lint (formatter disabled; Prettier handles format)             |
+| `pnpm run test:unit`         | Vitest: `src/**` at 100% coverage + fast-check PBT                 |
+| `pnpm run test:unit:ci`      | Same as `test:unit` with `PBT_NUM_RUNS=1200000` (CircleCI `unit-tests`) |
+| `pnpm run test:unit:fast`    | Same suite with `PBT_NUM_RUNS=100` for local feedback in seconds     |
+| `pnpm run test:smarter:doctor` | Validate `.circleci/test-suites.yml` locally (requires CircleCI CLI) |
+| `pnpm run build`             | webpack production build                                             |
+
+**CircleCI jobs**
+
+| Job | Role | Blocks `build`? |
+| --- | ---- | --------------- |
+| `unit-tests` | Full suite, 100% coverage gate, ~3–4 min | Yes |
+| `unit-test-smarter` | Smarter Testing: 4-way split + TIA, ~1 min on `main` | No (comparison demo) |
 
 Watch mode for unit tests: `pnpm run test:unit:watch`. Override PBT volume locally: `PBT_NUM_RUNS=5000 pnpm run test:unit`.
 
