@@ -1,8 +1,8 @@
 # Shift-left quality: format, lint, unit tests, and webpack build (node orb).
 # Release deploy (staging → MagicPod → production): deploy.yml
 #
-# unit-tests: 100% coverage + full PBT (build gate)
-# unit-test-smarter: Smarter Testing demo (parallel shards + TIA, non-blocking)
+# unit-tests: 100% coverage + full PBT (build gate, 1 node)
+# unit-test-smarter: same workload via testsuite + 4-way split (non-blocking comparison)
 
 version: 2.1
 
@@ -28,11 +28,13 @@ jobs:
           include-branch-in-cache-key: false
       - run:
           name: Run unit tests (Smarter Testing)
-          command: circleci run testsuite "unit tests"
+          command: circleci run testsuite "unit tests" --select-tests=all --analyze-tests=none
           environment:
-            PBT_NUM_RUNS: "300000"
+            PBT_NUM_RUNS: "1200000"
       - store_test_results:
           path: test-reports
+      - store_artifacts:
+          path: coverage
       - store_artifacts:
           path: test-reports
 
