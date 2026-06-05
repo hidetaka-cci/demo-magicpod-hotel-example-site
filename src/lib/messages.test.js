@@ -3,7 +3,7 @@ import { t } from './messages.js';
 
 describe('t', () => {
   it('resolves nested message keys', () => {
-    expect(t('validation.valueMissing')).toBe('Please fill out this field.');
+    expect(t('validation.valueMissing')).toBe('This field is required.');
     expect(t('validation.typeMismatch.email')).toBe(
       'Please enter a non-empty email address.',
     );

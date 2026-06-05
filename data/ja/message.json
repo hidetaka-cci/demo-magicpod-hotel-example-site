@@ -1,6 +1,6 @@
 {
   "validation": {
-    "valueMissing": "このフィールドを入力してください。",
+    "valueMissing": "入力が必須です。",
     "typeMismatch": {
       "email": "メールアドレスを入力してください。",
       "url": "URLを入力してください。"
@@ -13,7 +13,7 @@
     "rangeUnderflow": "{}以上の値を入力してください。",
     "stepMismatch": "有効な値を入力してください。",
     "shoudBeNextDay": "翌日以降の日付を入力してください。",
-    "shouldBeThreeMonth": "3ヶ月以内の日付を入力してください。",
+    "shouldBeFourMonth": "4ヶ月以内の日付を入力してください。",
     "mailOrAddressMismatch": "メールアドレスまたはパスワードが違います。",
     "existsMail": "このメールアドレスはすでに登録済みです。",
     "passwordUnmatch": "入力されたパスワードと一致しません。",

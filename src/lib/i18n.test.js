@@ -29,7 +29,7 @@ describe('getMessages', () => {
   it('uses html lang when locale is omitted', () => {
     document.documentElement.lang = 'en-US';
     expect(getMessages().validation.valueMissing).toBe(
-      'Please fill out this field.',
+      'This field is required.',
     );
   });
 });
