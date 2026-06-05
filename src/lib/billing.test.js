@@ -10,7 +10,7 @@ function expectedWeekendSurcharge(roomBill, date, term, headCount) {
     const night = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     night.setDate(night.getDate() + i);
     if (night.getDay() === 0 || night.getDay() === 6) {
-      surcharge += roomBill * 0.25 * headCount;
+      surcharge += Math.round((roomBill * 3 * headCount) / 10);
     }
   }
   return surcharge;
@@ -32,7 +32,7 @@ describe('calcTotalBill', () => {
     const date = new Date(2026, 5, 6);
     expect(
       calcTotalBill(roomBill, date, 1, headCount, false, false, false, 0),
-    ).toBe(25000);
+    ).toBe(26000);
   });
 
   it('applies weekend surcharge across multiple nights', () => {
@@ -47,7 +47,7 @@ describe('calcTotalBill', () => {
       false,
       0,
     );
-    expect(total).toBe(70000);
+    expect(total).toBe(72000);
   });
 
   it('adds breakfast for all nights', () => {
