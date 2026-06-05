@@ -2,7 +2,7 @@
 # Release deploy (staging → MagicPod → production): deploy.yml
 #
 # unit-tests: 100% coverage + full PBT (build gate, 1 node)
-# unit-test-smarter: same workload via testsuite + 4-way split (non-blocking comparison)
+# unit-test-smarter: same test logic/PBT, 4-way split; no per-shard coverage gate (non-blocking)
 
 version: 2.1
 
@@ -33,8 +33,6 @@ jobs:
             PBT_NUM_RUNS: "1200000"
       - store_test_results:
           path: test-reports
-      - store_artifacts:
-          path: coverage
       - store_artifacts:
           path: test-reports
 

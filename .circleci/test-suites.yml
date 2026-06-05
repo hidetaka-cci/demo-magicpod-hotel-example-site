@@ -1,6 +1,6 @@
 name: unit tests
 discover: pnpm exec vitest list --filesOnly
-run: pnpm exec vitest run --coverage --reporter=junit --outputFile="<< outputs.junit >>" --bail 0 << test.atoms >>
+run: pnpm exec vitest run --reporter=junit --outputFile="<< outputs.junit >>" --bail 0 << test.atoms >>
 analysis: |
   CIRCLECI_COVERAGE=<< outputs.circleci-coverage >> pnpm exec vitest run \
     --config vitest.smarter.config.ts \
