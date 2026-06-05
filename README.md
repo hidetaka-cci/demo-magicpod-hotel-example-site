@@ -91,10 +91,10 @@ This fork adds shift-left checks before deploy. CI runs unit tests with 100% cov
 
 **CircleCI jobs**
 
-| Job                 | Role                                                                 | Blocks `build`?      |
-| ------------------- | -------------------------------------------------------------------- | -------------------- |
-| `unit-tests`        | Full suite, 1 node, `test:unit:ci`, ~3–4 min                         | Yes                  |
-| `unit-test-smarter` | Same suite, 4 nodes via `testsuite` (`--select-tests=all`), ~1 min   | No (comparison demo) |
+| Job                 | Role                                                               | Blocks `build`?      |
+| ------------------- | ------------------------------------------------------------------ | -------------------- |
+| `unit-tests`        | Full suite, 1 node, `test:unit:ci`, ~3–4 min                       | Yes                  |
+| `unit-test-smarter` | Same suite, 4 nodes via `testsuite` (`--select-tests=all`), ~1 min | No (comparison demo) |
 
 Watch mode for unit tests: `pnpm run test:unit:watch`. Override PBT volume locally: `PBT_NUM_RUNS=5000 pnpm run test:unit`.
 
