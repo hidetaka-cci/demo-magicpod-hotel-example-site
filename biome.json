@@ -8,6 +8,7 @@
       "**",
       "!**/dist",
       "!**/node_modules",
+      "!**/infra",
       "!**/infra/cdk.out",
       "!**/publish",
       "!**/playwright-report",
