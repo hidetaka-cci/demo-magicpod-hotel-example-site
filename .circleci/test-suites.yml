@@ -4,6 +4,7 @@ run: pnpm exec vitest run --reporter=junit --outputFile="<< outputs.junit >>" --
 analysis: |
   CIRCLECI_COVERAGE=<< outputs.circleci-coverage >> pnpm exec vitest run \
     --config vitest.smarter.config.ts \
+    --silent \
     --bail 0 \
     << test.atoms >>
 outputs:
@@ -11,6 +12,7 @@ outputs:
   circleci-coverage: coverage.json
 options:
   test-impact-analysis: true
+  dynamic-test-splitting: true
   full-test-run-paths:
     - package.json
     - pnpm-lock.yaml

@@ -13,7 +13,7 @@
     "test:unit:ci": "PBT_NUM_RUNS=1200000 vitest run --coverage",
     "test:unit:fast": "PBT_NUM_RUNS=100 vitest run",
     "test:smarter:doctor": "circleci run testsuite \"unit tests\" --doctor",
-    "test:smarter:local": "circleci run testsuite \"unit tests\" --local --select-tests=all",
+    "test:smarter:bootstrap": "circleci run testsuite \"unit tests\" --local --select-tests=none --analyze-tests=all",
     "test:unit:watch": "vitest",
     "test": "playwright test",
     "test:headed": "playwright test --headed",

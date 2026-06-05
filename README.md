@@ -77,24 +77,31 @@ After starting the server, open your browser and navigate to:
 
 ### Fast feedback (lint and unit tests)
 
-This fork adds shift-left checks before deploy. CI runs unit tests with 100% coverage and property-based tests (~3–4 minutes). A parallel **Smarter Testing** job (`unit-test-smarter`) runs the same test files and PBT volume (`PBT_NUM_RUNS=1200000`, all 14 files, `--select-tests=all`) and differs only in orchestration: `testsuite` + 4-way parallel split. Coverage enforcement stays on `unit-tests` only (per-shard runs cannot apply the global 100% threshold). UI E2E is handled by MagicPod after staging deploy (Playwright is for local use only).
+This fork adds shift-left checks before deploy. CI runs unit tests with 100% coverage and property-based tests (~3–4 minutes). In parallel, **Smarter Testing** demonstrates two features from [CircleCI Smarter Testing](https://circleci.com/docs/guides/test/getting-started-with-smarter-testing/):
 
-| Command                        | Role                                                                    |
-| ------------------------------ | ----------------------------------------------------------------------- |
-| `pnpm run fmt:check`           | Prettier formatting                                                     |
-| `pnpm run lint`                | Biome lint (formatter disabled; Prettier handles format)                |
-| `pnpm run test:unit`           | Vitest: `src/**` at 100% coverage + fast-check PBT                      |
-| `pnpm run test:unit:ci`        | Same as `test:unit` with `PBT_NUM_RUNS=1200000` (CircleCI `unit-tests`) |
-| `pnpm run test:unit:fast`      | Same suite with `PBT_NUM_RUNS=100` for local feedback in seconds        |
-| `pnpm run test:smarter:doctor` | Validate `.circleci/test-suites.yml` locally (requires CircleCI CLI)    |
-| `pnpm run build`               | webpack production build                                                |
+- **`unit-test-smarter`**: [Dynamic Test Splitting](https://circleci.com/docs/guides/test/use-dynamic-test-splitting/) (`parallelism: 4`, `dynamic-test-splitting: true`) plus [Test Impact Analysis](https://circleci.com/docs/guides/test/set-up-test-impact-analysis/) selection (`impacted` tests on PR branches, all tests on `main`). Same `PBT_NUM_RUNS=1200000`; coverage gate stays on `unit-tests`.
+- **`unit-test-analysis`** (`main` only): non-blocking TIA analysis job (`PBT_NUM_RUNS=100` for impact mapping) via `@circleci/vitest-circleci-coverage`.
+
+UI E2E is handled by MagicPod after staging deploy (Playwright is for local use only).
+
+| Command                           | Role                                                                                  |
+| --------------------------------- | ------------------------------------------------------------------------------------- |
+| `pnpm run fmt:check`              | Prettier formatting                                                                   |
+| `pnpm run lint`                   | Biome lint (formatter disabled; Prettier handles format)                              |
+| `pnpm run test:unit`              | Vitest: `src/**` at 100% coverage + fast-check PBT                                    |
+| `pnpm run test:unit:ci`           | Same as `test:unit` with `PBT_NUM_RUNS=1200000` (CircleCI `unit-tests`)               |
+| `pnpm run test:unit:fast`         | Same suite with `PBT_NUM_RUNS=100` for local feedback in seconds                      |
+| `pnpm run test:smarter:doctor`    | Validate `.circleci/test-suites.yml` (`brew install circleci/tap/circleci-testsuite`) |
+| `pnpm run test:smarter:bootstrap` | First-time: build local impact map (`--analyze-tests=all`)                            |
+| `pnpm run build`                  | webpack production build                                                              |
 
 **CircleCI jobs**
 
-| Job                 | Role                                                                    | Blocks `build`?      |
-| ------------------- | ----------------------------------------------------------------------- | -------------------- |
-| `unit-tests`        | Full suite + `--coverage` + 100% gate, 1 node, `test:unit:ci`, ~3–4 min | Yes                  |
-| `unit-test-smarter` | Same tests/PBT, 4 nodes via `testsuite` (no per-shard coverage gate)    | No (comparison demo) |
+| Job                  | Role                                                                 | Blocks `build`? |
+| -------------------- | -------------------------------------------------------------------- | --------------- |
+| `unit-tests`         | Full suite + `--coverage` + 100% gate, 1 node, ~3–4 min              | Yes             |
+| `unit-test-smarter`  | DTS + TIA selection, 4 nodes; `main` runs all, PRs run impacted only | No              |
+| `unit-test-analysis` | TIA impact map update (`main` only, non-blocking)                    | No              |
 
 Watch mode for unit tests: `pnpm run test:unit:watch`. Override PBT volume locally: `PBT_NUM_RUNS=5000 pnpm run test:unit`.
 

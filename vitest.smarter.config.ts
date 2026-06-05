@@ -1,6 +1,7 @@
 import { defineConfig, mergeConfig } from 'vitest/config';
 import baseConfig from './vitest.config';
 
+// Used by test-suites.yml `analysis` only (TIA impact map via CIRCLECI_COVERAGE).
 export default mergeConfig(
   baseConfig,
   defineConfig({
