@@ -77,22 +77,23 @@ After starting the server, open your browser and navigate to:
 
 ### Fast feedback (lint and unit tests)
 
-This fork adds shift-left checks that run locally in seconds (CircleCI still gates on MagicPod E2E after staging deploy).
+This fork adds shift-left checks before deploy. CI runs unit tests with 100% coverage and property-based tests (~3–4 minutes). UI E2E is handled by MagicPod after staging deploy (Playwright is for local use only).
 
-| Command              | Role                                                     |
-| -------------------- | -------------------------------------------------------- |
-| `pnpm run fmt:check` | Prettier formatting                                      |
-| `pnpm run lint`      | Biome lint (formatter disabled; Prettier handles format) |
-| `pnpm run test:unit` | Vitest unit tests for `src/lib` business logic           |
-| `pnpm run build`     | webpack production build                                 |
+| Command                   | Role                                                                 |
+| ------------------------- | -------------------------------------------------------------------- |
+| `pnpm run fmt:check`      | Prettier formatting                                                  |
+| `pnpm run lint`           | Biome lint (formatter disabled; Prettier handles format)             |
+| `pnpm run test:unit`      | Vitest: `src/**` at 100% coverage + fast-check PBT (CI-tuned runs)   |
+| `pnpm run test:unit:fast` | Same suite with `PBT_NUM_RUNS=100` for local feedback in seconds       |
+| `pnpm run build`          | webpack production build                                             |
 
-Watch mode for unit tests: `pnpm run test:unit:watch`.
+Watch mode for unit tests: `pnpm run test:unit:watch`. Override PBT volume locally: `PBT_NUM_RUNS=5000 pnpm run test:unit`.
 
 With [chunk](https://github.com/circleci/chunk) configured (`.chunk/config.json`), run the same checks via `chunk validate` on your machine. Remote sidecar validation is optional; use it only after a working snapshot is available.
 
 ### Running Playwright Tests
 
-Playwright covers UI flows end-to-end. Unit tests above target pure logic (billing, plan visibility, date parsing) that E2E exercises only indirectly.
+Playwright covers UI flows end-to-end locally. CI does not run Playwright; MagicPod exercises the deployed staging site instead. Unit tests above cover all `src/**` logic (billing, validation, page scripts) with example-based and property-based checks.
 
 This project provides Playwright E2E tests as an example.
 

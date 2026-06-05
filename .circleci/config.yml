@@ -33,13 +33,15 @@ workflows:
           setup:
             - node/install-pnpm:
                 version: "11.0.0"
-      - node/test:
+      - node/run:
           name: unit-tests
           executor: node-pnpm
           pkg-manager: pnpm
-          run-command: test:unit
-          test-results-for: other
+          pnpm-run: test:unit
           include-branch-in-cache-key: false
+          artifacts-path: coverage
+          environment:
+            PBT_NUM_RUNS: "1200000"
           setup:
             - node/install-pnpm:
                 version: "11.0.0"
