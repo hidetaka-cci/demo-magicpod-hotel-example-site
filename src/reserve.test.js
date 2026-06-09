@@ -9,6 +9,14 @@ import { mountHtml, reservePageHtml } from '../test/helpers/dom-fixtures.js';
 import { loadPageScript } from '../test/helpers/page-loader.js';
 import { login } from './lib/session.js';
 
+describe('test environment', () => {
+  it('disables iframe page loading to prevent ECONNREFUSED noise in CI', () => {
+    // happy-dom attempts real TCP connections for iframe src URLs, causing
+    // ECONNREFUSED errors in every CI run. disableIframePageLoading suppresses this.
+    expect(window.happyDOM?.settings?.disableIframePageLoading).toBe(true);
+  });
+});
+
 describe('reserve.js', () => {
   it('redirects when plan-id query is missing', async () => {
     mountHtml(reservePageHtml);
