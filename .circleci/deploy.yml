@@ -165,11 +165,11 @@ jobs:
 workflows:
   release:
     jobs:
-      - build:
-          filters:
-            branches:
-              only:
-                - main
+      #- build:
+      #    filters:
+      #      branches:
+      #        only:
+      #          - main
       # TEMP: deploy-staging をスキップ（CI 調査中）
       # - deploy-staging:
       #     requires:
@@ -181,8 +181,8 @@ workflows:
       #         only:
       #           - main
       - e2e-magicpod:
-          requires:
-            - build
+      #    requires:
+      #      - build
           filters:
             branches:
               only:
