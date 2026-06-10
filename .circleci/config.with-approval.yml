@@ -14,6 +14,7 @@
 #   MAGICPOD_API_TOKEN, MAGICPOD_ORGANIZATION, MAGICPOD_PROJECT, MAGICPOD_SETTING_NUMBER
 #
 # MagicPod browser E2E: https://support.magic-pod.com/hc/ja/articles/4408910495897
+# E2E 結果は scripts/magicpod_to_junit.py で JUnit XML に変換し Test Insights へ取り込む。
 # OIDC: attach aws-oidc context to deploy jobs so CIRCLE_OIDC_TOKEN is available.
 #
 # Deploy markers: deploy-staging / deploy-production log releases to CircleCI Deploys
@@ -141,18 +142,14 @@ jobs:
     executor: aws-cli/default
     resource_class: small
     steps:
+      - checkout
       - run:
-          name: Run MagicPod browser tests against staging
-          command: |
-            set -e
-            OS=linux
-            curl -L "https://app.magicpod.com/api/v1.0/magicpod-clients/api/${OS}/latest/" \
-              -H "Authorization: Token ${MAGICPOD_API_TOKEN}" \
-              --output magicpod-api-client.zip
-            unzip -q magicpod-api-client.zip
-            export MAGICPOD_ORGANIZATION="${MAGICPOD_ORGANIZATION}"
-            export MAGICPOD_PROJECT="${MAGICPOD_PROJECT}"
-            ./magicpod-api-client batch-run -n -S "${MAGICPOD_SETTING_NUMBER}"
+          name: Run MagicPod browser tests and collect results
+          command: ./scripts/run-magicpod-e2e.sh
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: test-results
 
   deploy-production:
     executor: aws-cli/default
