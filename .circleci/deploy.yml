@@ -170,18 +170,19 @@ workflows:
             branches:
               only:
                 - main
-      - deploy-staging:
-          requires:
-            - build
-          context:
-            - aws-oidc
-          filters:
-            branches:
-              only:
-                - main
+      # TEMP: deploy-staging をスキップ（CI 調査中）
+      # - deploy-staging:
+      #     requires:
+      #       - build
+      #     context:
+      #       - aws-oidc
+      #     filters:
+      #       branches:
+      #         only:
+      #           - main
       - e2e-magicpod:
           requires:
-            - deploy-staging
+            - build
           filters:
             branches:
               only:
