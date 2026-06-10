@@ -10,7 +10,8 @@
 #   MAGICPOD_API_TOKEN, MAGICPOD_ORGANIZATION, MAGICPOD_PROJECT, MAGICPOD_SETTING_NUMBER
 #
 # MagicPod browser E2E: https://support.magic-pod.com/hc/ja/articles/4408910495897
-# E2E 結果は scripts/magicpod_to_junit.py で JUnit XML に変換し Test Insights へ取り込む。
+# E2E は公式手順（magicpod-api-client batch-run）で実行し、
+# scripts/magicpod_to_junit.py で JUnit XML に変換して Test Insights へ取り込む。
 # OIDC: attach aws-oidc context to deploy jobs so CIRCLE_OIDC_TOKEN is available.
 #
 # Deploy markers: deploy-staging / deploy-production log releases to CircleCI Deploys

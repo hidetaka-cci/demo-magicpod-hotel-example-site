@@ -146,6 +146,8 @@ jobs:
       - run:
           name: Run MagicPod browser tests and collect results
           command: ./scripts/run-magicpod-e2e.sh
+          environment:
+            MAGICPOD_BATCH_RUN_NO_WAIT: "1"
       - store_test_results:
           path: test-results
       - store_artifacts:

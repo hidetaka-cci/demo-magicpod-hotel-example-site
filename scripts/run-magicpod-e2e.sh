@@ -1,65 +1,57 @@
 #!/usr/bin/env bash
-# MagicPod batch-run を API で開始し、完了後に JUnit XML へ変換する。
-# 環境変数: MAGICPOD_API_TOKEN, MAGICPOD_ORGANIZATION, MAGICPOD_PROJECT,
-#           MAGICPOD_SETTING_NUMBER
+# MagicPod E2E（公式 CircleCI 連携手順）+ Test Insights 用 JUnit XML 変換。
+# https://support.magic-pod.com/hc/ja/articles/4408910495897
+#
+# 環境変数:
+#   MAGICPOD_API_TOKEN, MAGICPOD_ORGANIZATION, MAGICPOD_PROJECT, MAGICPOD_SETTING_NUMBER
+#   MAGICPOD_BATCH_RUN_NO_WAIT=1  … batch-run -n（終了を待たない。config.with-approval 用）
 set -euo pipefail
 
-API="https://app.magicpod.com/api/v1.0/${MAGICPOD_ORGANIZATION}/${MAGICPOD_PROJECT}"
-AUTH="Authorization: Token ${MAGICPOD_API_TOKEN}"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+RESULT_DIR="${REPO_ROOT}/test-results/magicpod"
+LOG_FILE="${RESULT_DIR}/magicpod-batch.log"
+CLIENT="${REPO_ROOT}/magicpod-api-client"
 
-mkdir -p test-results/magicpod
+mkdir -p "${RESULT_DIR}"
 
-magicpod_api() {
-  local method="$1"
-  local path="$2"
-  local body="${3:-}"
-  local tmp
-  tmp="$(mktemp)"
-  local http_code
+# --- 1. 公式手順: magicpod-api-client でテスト一括実行 ---
+OS=linux
+curl -fsSL "https://app.magicpod.com/api/v1.0/magicpod-clients/api/${OS}/latest/" \
+  -H "Authorization: Token ${MAGICPOD_API_TOKEN}" \
+  --output "${CLIENT}.zip"
+unzip -qo "${CLIENT}.zip" -d "${REPO_ROOT}"
 
-  if [ -n "${body}" ]; then
-    http_code=$(curl -sS -w "%{http_code}" -o "${tmp}" -X "${method}" \
-      "${API}${path}" -H "${AUTH}" -H "Content-Type: application/json" -d "${body}")
-  else
-    http_code=$(curl -sS -w "%{http_code}" -o "${tmp}" -X "${method}" \
-      "${API}${path}" -H "${AUTH}")
+export MAGICPOD_ORGANIZATION="${MAGICPOD_ORGANIZATION}"
+export MAGICPOD_PROJECT="${MAGICPOD_PROJECT}"
+
+NO_WAIT_ARGS=()
+if [ -n "${MAGICPOD_BATCH_RUN_NO_WAIT:-}" ]; then
+  NO_WAIT_ARGS+=(-n)
+fi
+
+set +e
+"${CLIENT}" batch-run "${NO_WAIT_ARGS[@]}" -S "${MAGICPOD_SETTING_NUMBER}" | tee "${LOG_FILE}"
+CLI_EXIT=${PIPESTATUS[0]}
+set -e
+
+# --- 2. Test Insights: 結果 JSON → JUnit XML（失敗時も収集を試みる）---
+collect_junit_results() {
+  local batch_run_no
+  batch_run_no=$(grep -oE '#[0-9]+ wait' "${LOG_FILE}" 2>/dev/null | head -1 | grep -oE '[0-9]+' || true)
+  if [ -z "${batch_run_no}" ]; then
+    batch_run_no=$("${CLIENT}" latest-batch-run-no)
   fi
+  echo "batch_run_number: ${batch_run_no}"
 
-  if [ "${http_code}" -lt 200 ] || [ "${http_code}" -ge 300 ]; then
-    echo "MagicPod API error: ${method} ${path} returned HTTP ${http_code}"
-    cat "${tmp}"
-    rm -f "${tmp}"
-    exit 1
-  fi
+  "${CLIENT}" get-batch-run -b "${batch_run_no}" > "${RESULT_DIR}/batch_run_result.json"
 
-  cat "${tmp}"
-  rm -f "${tmp}"
+  python3 "${REPO_ROOT}/scripts/magicpod_to_junit.py" \
+    "${RESULT_DIR}/batch_run_result.json" \
+    "${RESULT_DIR}/results.xml"
 }
 
-# -S (test_settings_number) 指定時は CLI と同様 cross-batch-run を使う
-START_BODY="{\"test_settings_number\": ${MAGICPOD_SETTING_NUMBER}}"
-START_RESPONSE=$(magicpod_api POST "/cross-batch-run/" "${START_BODY}")
-
-BATCH_RUN_NO=$(echo "${START_RESPONSE}" | jq -r '.batch_run_number')
-if [ -z "${BATCH_RUN_NO}" ] || [ "${BATCH_RUN_NO}" = "null" ]; then
-  echo "Failed to start batch-run (no batch_run_number in response):"
-  echo "${START_RESPONSE}"
-  exit 1
+if ! collect_junit_results; then
+  echo "Warning: failed to collect JUnit test results for CircleCI Test Insights" >&2
 fi
-echo "batch_run_number: ${BATCH_RUN_NO}"
 
-while :; do
-  BODY=$(magicpod_api GET "/batch-run/${BATCH_RUN_NO}/")
-  STATUS=$(echo "${BODY}" | jq -r '.status')
-  [ "${STATUS}" != "running" ] && break
-  sleep 30
-done
-
-echo "${BODY}" > test-results/magicpod/batch_run_result.json
-
-python3 "${REPO_ROOT}/scripts/magicpod_to_junit.py" \
-  test-results/magicpod/batch_run_result.json \
-  test-results/magicpod/results.xml
-
-[ "${STATUS}" = "succeeded" ] || [ "${STATUS}" = "unresolved" ] || exit 1
+exit "${CLI_EXIT}"
