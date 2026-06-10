@@ -7,11 +7,13 @@
 #
 # Project environment variables:
 #   S3_STAGING_BUCKET_NAME, S3_PRODUCTION_BUCKET_NAME  (bucket name, not ARN)
-#   MAGICPOD_API_TOKEN, MAGICPOD_ORGANIZATION, MAGICPOD_PROJECT, MAGICPOD_SETTING_NUMBER
+#   MAGICPOD_API_TOKEN
+#   新規実行時: MAGICPOD_ORGANIZATION, MAGICPOD_PROJECT, MAGICPOD_SETTING_NUMBER
+#   既存 run 参照時: MAGICPOD_BATCH_RUN_NUMBER（batch-run をスキップして get-batch-run のみ）
 #
 # MagicPod browser E2E: https://support.magic-pod.com/hc/ja/articles/4408910495897
-# E2E は公式手順（magicpod-api-client batch-run）で実行し、
-# scripts/magicpod_to_junit.py で JUnit XML に変換して Test Insights へ取り込む。
+# Test Insights 実験: 既存 batch-run を参照する例
+#   https://app.magicpod.com/Demo-CircleCI/DEMO_CCI/batch-run/50/
 # OIDC: attach aws-oidc context to deploy jobs so CIRCLE_OIDC_TOKEN is available.
 #
 # Deploy markers: deploy-staging / deploy-production log releases to CircleCI Deploys
@@ -140,8 +142,12 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Run MagicPod browser tests and collect results
+          name: Collect MagicPod batch-run results as JUnit XML
           command: ./scripts/run-magicpod-e2e.sh
+          environment:
+            MAGICPOD_ORGANIZATION: Demo-CircleCI
+            MAGICPOD_PROJECT: DEMO_CCI
+            MAGICPOD_BATCH_RUN_NUMBER: "50"
       - store_test_results:
           path: test-results
       - store_artifacts:
@@ -187,13 +193,14 @@ workflows:
           filters:
             branches:
               only:
-                - main
-      - deploy-production:
-          requires:
-            - e2e-magicpod
-          context:
-            - aws-oidc
-          filters:
-            branches:
-              only:
-                - main
+                - experiment/magicpod-circleci-test-insights
+      # TEMP: deploy-production も実験中はスキップ
+      # - deploy-production:
+      #     requires:
+      #       - e2e-magicpod
+      #     context:
+      #       - aws-oidc
+      #     filters:
+      #       branches:
+      #         only:
+      #           - experiment/magicpod-circleci-test-insights
