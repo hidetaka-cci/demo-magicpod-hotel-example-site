@@ -171,4 +171,13 @@ describe('validateDateInput', () => {
     expect(validateDateInput(new Date(2026, 6, 1))).toBeUndefined();
     vi.useRealTimers();
   });
+
+  it('accepts a booking exactly 100 days ahead (MagicPod e2e scenario)', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
+    const hundredDays = new Date(2026, 5, 5);
+    hundredDays.setDate(hundredDays.getDate() + 100);
+    expect(validateDateInput(hundredDays)).toBeUndefined();
+    vi.useRealTimers();
+  });
 });
