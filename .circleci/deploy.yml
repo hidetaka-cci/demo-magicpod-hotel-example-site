@@ -52,7 +52,7 @@ commands:
       - aws-s3/sync:
           from: publish
           to: s3://<< parameters.bucket_name >>/
-          arguments: "--delete --exact-timestamps"
+          arguments: "--delete --exact-timestamps --region ${AWS_REGION}"
 
   plan-deploy-marker:
     description: Plan a deploy marker in CircleCI Deploys UI (pending).
