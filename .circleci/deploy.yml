@@ -37,6 +37,14 @@ commands:
   assume-aws-role:
     description: Assume an AWS IAM role via CircleCI OIDC (aws-oidc context).
     steps:
+      # Fail fast when the aws-oidc context is missing values. An empty
+      # AWS_REGION otherwise reaches the AWS CLI and produces an opaque
+      # 'Invalid endpoint: https://s3..amazonaws.com' deep in the S3 sync step.
+      - run:
+          name: Verify required AWS environment variables
+          command: |
+            : "${AWS_REGION:?AWS_REGION is not set; attach the aws-oidc context with AWS_REGION configured}"
+            : "${AWS_ROLE_ARN:?AWS_ROLE_ARN is not set; attach the aws-oidc context with AWS_ROLE_ARN configured}"
       - aws-cli/setup:
           role_arn: ${AWS_ROLE_ARN}
           region: ${AWS_REGION}
