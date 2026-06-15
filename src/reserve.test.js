@@ -85,6 +85,53 @@ describe('reserve.js', () => {
     expect($('#date').val()).toBeTruthy();
   });
 
+  it('configures datepicker maxDate to match the 4-month booking window', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    const options = $('#date').data('datepicker-options');
+    expect(options.maxDate).toBe(120);
+  });
+
+  it('accepts a 100-day-ahead date through the form submit flow', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    try {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(2026, 5, 4, 14, 0, 0));
+
+      const hundredDaysAhead = new Date(2026, 5, 4);
+      hundredDaysAhead.setDate(hundredDaysAhead.getDate() + 100);
+      const formatted =
+        `${String(hundredDaysAhead.getMonth() + 1).padStart(2, '0')}/` +
+        `${String(hundredDaysAhead.getDate()).padStart(2, '0')}/` +
+        `${hundredDaysAhead.getFullYear()}`;
+
+      $('#date').val(formatted);
+      $('#term').val('2');
+      $('#head-count').val('2');
+      $('#username').val('Guest User');
+      $('#contact').val('no');
+      vi.spyOn($('#reserve-form')[0], 'checkValidity').mockReturnValue(true);
+      vi.spyOn($('#date')[0], 'checkValidity').mockReturnValue(true);
+      const setCustomValiditySpy = vi.spyOn(
+        $('#date')[0],
+        'setCustomValidity',
+      );
+      $('#reserve-form').trigger('submit');
+
+      expect(setCustomValiditySpy).not.toHaveBeenCalledWith(
+        expect.stringContaining('4 months'),
+      );
+      expect(document.cookie).toContain('transaction=');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('returns early from total update when date cannot be parsed', async () => {
     mountHtml(reservePageHtml);
     setLocation('/en-US/reserve.html', '?plan-id=4');
