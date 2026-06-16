@@ -24,7 +24,8 @@ export function calcTotalBill(roomBill, date, term, headCount, breakfast, earlyC
     totalBill += additionalPlanPrice * headCount * term;
   }
   if (earlyCheckIn) {
-    totalBill += additionalPlanPrice * headCount;
+    // HOTEL-518: summer campaign — flat fee per reservation (not per guest)
+    totalBill += additionalPlanPrice;
   }
   if (sightseeing) {
     totalBill += additionalPlanPrice * headCount;

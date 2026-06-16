@@ -1,0 +1,13 @@
+{
+  "requiredEnv": ["MAGICPOD_API_TOKEN"],
+  "mcpServers": {
+    "magicpod-mcp-server": {
+      "command": "pnpm",
+      "args": [
+        "dlx",
+        "magicpod-mcp-server@latest",
+        "--api-token=${MAGICPOD_API_TOKEN}"
+      ]
+    }
+  }
+}
