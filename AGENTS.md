@@ -16,6 +16,11 @@ AWS CDK package used only for deployment and is not needed for local dev/testing
   activates nvm explicitly, so dependency installs are unaffected.
 - Do not use `npm` for installs/scripts here — `npm` enforces `devEngines` and will fail
   with `EBADDEVENGINES` (it expects pnpm). Always use `pnpm`.
+- `pnpm install` (even `--frozen-lockfile`) writes a `packageManagerDependencies`
+  self-pin block to `pnpm-lock.yaml` because `managePackageManagerVersions` defaults to
+  `true` in pnpm 11. This is environment noise — do **not** commit it. The startup
+  update script runs `git checkout -- pnpm-lock.yaml` after install; if you see a stray
+  `pnpm-lock.yaml` diff containing `packageManagerDependencies` / `@pnpm/exe`, restore it.
 
 ### Run / build / test (commands live in `package.json`; see also `README.md`)
 - Dev server: `pnpm run start` → serves at `http://127.0.0.1:8080/` (open
