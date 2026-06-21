@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     environment: 'happy-dom',
     setupFiles: ['./test/helpers/setup.js'],
-    include: ['src/**/*.test.js'],
+    include: ['src/**/*.test.js', 'test/**/*.test.js'],
     fileParallelism: false,
     testTimeout: 180_000,
     coverage: {
