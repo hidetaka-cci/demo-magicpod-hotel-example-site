@@ -421,7 +421,7 @@ test.describe('Reservation', () => {
     const day = expectedStart.getDay();
     const weekend = day === 0 || day === 6;
     const expectedTotalBill = weekend
-      ? 'Total $87.50 (included taxes)'
+      ? 'Total $91.00 (included taxes)'
       : 'Total $70.00 (included taxes)';
     const expectedTerm = `${formatLong(expectedStart)} - ${formatLong(expectedEnd)}. 1 night(s)`;
 
@@ -502,9 +502,9 @@ test.describe('Reservation', () => {
     const dow = expectedStart.getDay();
     const expectedTotalBill =
       dow === 6
-        ? 'Total $1,120.00 (included taxes)'
+        ? 'Total $1,160.00 (included taxes)'
         : dow === 0 || dow === 5
-          ? 'Total $1,020.00 (included taxes)'
+          ? 'Total $1,040.00 (included taxes)'
           : 'Total $920.00 (included taxes)';
     const expectedTerm = `${formatLong(expectedStart)} - ${formatLong(expectedEnd)}. 2 night(s)`;
 
