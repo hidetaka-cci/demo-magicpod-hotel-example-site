@@ -99,6 +99,50 @@ describe('calcTotalBill', () => {
   });
 });
 
+describe('E2E reservation parity', () => {
+  // Locks in the totals shown in confirmation for the scenarios exercised by
+  // e2e/{ja,en-US}/reserve.spec.ts (and the equivalent MagicPod batch run),
+  // so future weekend-surcharge changes can't drift between unit and E2E specs.
+
+  describe('お得な特典付きプラン (7000 yen room, 1 head, 1 night, no add-ons)', () => {
+    it('weekday total is the base room charge', () => {
+      const weekday = new Date(2026, 5, 3);
+      expect(calcTotalBill(7000, weekday, 1, 1, false, false, false, 1000)).toBe(
+        7000,
+      );
+    });
+
+    it('weekend total adds the 30% surcharge', () => {
+      const saturday = new Date(2026, 5, 6);
+      expect(
+        calcTotalBill(7000, saturday, 1, 1, false, false, false, 1000),
+      ).toBe(9100);
+    });
+  });
+
+  describe('プレミアムプラン (10000 yen room, 4 heads, 2 nights, breakfast + early check-in)', () => {
+    const compute = (start) =>
+      calcTotalBill(10000, start, 2, 4, true, true, false, 1000);
+
+    it('weekday-only stay totals 92,000', () => {
+      const tuesdayStart = new Date(2026, 5, 2);
+      expect(compute(tuesdayStart)).toBe(92000);
+    });
+
+    it('one weekend night adds 12,000 (Friday or Sunday start)', () => {
+      const fridayStart = new Date(2026, 5, 5);
+      const sundayStart = new Date(2026, 5, 7);
+      expect(compute(fridayStart)).toBe(104000);
+      expect(compute(sundayStart)).toBe(104000);
+    });
+
+    it('two weekend nights add 24,000 (Saturday start)', () => {
+      const saturdayStart = new Date(2026, 5, 6);
+      expect(compute(saturdayStart)).toBe(116000);
+    });
+  });
+});
+
 describe('property-based', () => {
   it('returns a finite non-negative total for positive inputs', () => {
     fc.assert(
