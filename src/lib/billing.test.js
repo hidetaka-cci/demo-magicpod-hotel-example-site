@@ -99,6 +99,44 @@ describe('calcTotalBill', () => {
   });
 });
 
+describe('reservation scenarios mirrored by E2E suites (MagicPod / Playwright)', () => {
+  const weekday = new Date(2026, 5, 3);
+  const saturday = new Date(2026, 5, 6);
+  const friday = new Date(2026, 5, 5);
+
+  it('en-US "Plan with special offers" weekend single-night total matches 30% surcharge', () => {
+    expect(calcTotalBill(70, weekday, 1, 1, false, false, false, 10)).toBe(70);
+    expect(calcTotalBill(70, saturday, 1, 1, false, false, false, 10)).toBe(91);
+  });
+
+  it('en-US "Premium plan" two-night totals with breakfast and early check-in match 30% surcharge', () => {
+    expect(calcTotalBill(100, weekday, 2, 4, true, true, false, 10)).toBe(920);
+    expect(calcTotalBill(100, friday, 2, 4, true, true, false, 10)).toBe(1040);
+    expect(calcTotalBill(100, saturday, 2, 4, true, true, false, 10)).toBe(1160);
+  });
+
+  it('ja "お得な特典付きプラン" weekend single-night total matches 30% surcharge', () => {
+    expect(calcTotalBill(7000, weekday, 1, 1, false, false, false, 1000)).toBe(
+      7000,
+    );
+    expect(calcTotalBill(7000, saturday, 1, 1, false, false, false, 1000)).toBe(
+      9100,
+    );
+  });
+
+  it('ja "プレミアムプラン" two-night totals with breakfast and early check-in match 30% surcharge', () => {
+    expect(calcTotalBill(10000, weekday, 2, 4, true, true, false, 1000)).toBe(
+      92000,
+    );
+    expect(calcTotalBill(10000, friday, 2, 4, true, true, false, 1000)).toBe(
+      104000,
+    );
+    expect(calcTotalBill(10000, saturday, 2, 4, true, true, false, 1000)).toBe(
+      116000,
+    );
+  });
+});
+
 describe('property-based', () => {
   it('returns a finite non-negative total for positive inputs', () => {
     fc.assert(
