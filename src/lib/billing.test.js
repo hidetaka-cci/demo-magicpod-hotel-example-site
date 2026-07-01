@@ -50,6 +50,40 @@ describe('calcTotalBill', () => {
     expect(total).toBe(72000);
   });
 
+  it('matches the e2e reserve.spec sample (7,000 yen, 1 guest, 1 weekend night)', () => {
+    const saturday = new Date(2026, 5, 6);
+    expect(
+      calcTotalBill(7000, saturday, 1, 1, false, false, false, 0),
+    ).toBe(9100);
+  });
+
+  it('matches the e2e reserve.spec sample (7,000 yen, 1 guest, 1 weekday night)', () => {
+    const wednesday = new Date(2026, 5, 3);
+    expect(
+      calcTotalBill(7000, wednesday, 1, 1, false, false, false, 0),
+    ).toBe(7000);
+  });
+
+  it('matches the e2e reserve.spec premium plan sample (2 weekend nights, 4 guests, breakfast + early check-in)', () => {
+    const saturday = new Date(2026, 5, 6);
+    expect(
+      calcTotalBill(100, saturday, 2, 4, true, true, false, 10),
+    ).toBe(1160);
+    expect(
+      calcTotalBill(10000, saturday, 2, 4, true, true, false, 1000),
+    ).toBe(116000);
+  });
+
+  it('matches the e2e reserve.spec premium plan sample (1 weekend night, 4 guests, breakfast + early check-in)', () => {
+    const friday = new Date(2026, 5, 5);
+    expect(
+      calcTotalBill(100, friday, 2, 4, true, true, false, 10),
+    ).toBe(1040);
+    expect(
+      calcTotalBill(10000, friday, 2, 4, true, true, false, 1000),
+    ).toBe(104000);
+  });
+
   it('adds breakfast for all nights', () => {
     const date = new Date(2026, 5, 3);
     expect(
