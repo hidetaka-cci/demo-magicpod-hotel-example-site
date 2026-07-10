@@ -35,6 +35,20 @@ describe('calcTotalBill', () => {
     ).toBe(26000);
   });
 
+  it('applies 30% weekend surcharge to matches the E2E reservation total (JPY plan)', () => {
+    const saturday = new Date(2026, 5, 6);
+    expect(
+      calcTotalBill(7000, saturday, 1, 1, false, false, false, 0),
+    ).toBe(9100);
+  });
+
+  it('applies 30% weekend surcharge to match the E2E reservation total (USD plan)', () => {
+    const saturday = new Date(2026, 5, 6);
+    expect(
+      calcTotalBill(70, saturday, 1, 1, false, false, false, 0),
+    ).toBe(91);
+  });
+
   it('applies weekend surcharge across multiple nights', () => {
     const date = new Date(2026, 5, 5);
     const total = calcTotalBill(

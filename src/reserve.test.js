@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import planData from '../data/en-US/plan_data.json';
 import {
@@ -194,5 +196,33 @@ describe('reserve.js', () => {
     setLocation('/en-US/reserve.html', '?plan-id=1');
     await loadPageScript('reserve.js');
     expect(getAssignMock()).toHaveBeenCalled();
+  });
+
+  it('configures datepicker maxDate to match the 4-month booking window', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+    const options = $('#date').data('datepicker-options');
+    expect(options.maxDate).toBe(120);
+  });
+});
+
+describe('reserve.html booking window notice', () => {
+  it('en-US reserve.html states the 4-month booking window', () => {
+    const html = readFileSync(
+      resolve(import.meta.dirname, '../en-US/reserve.html'),
+      'utf-8',
+    );
+    expect(html).toContain('within 4 months');
+    expect(html).not.toContain('within 3 months');
+  });
+
+  it('ja reserve.html states the 4-month booking window', () => {
+    const html = readFileSync(
+      resolve(import.meta.dirname, '../ja/reserve.html'),
+      'utf-8',
+    );
+    expect(html).toContain('4ヶ月以内');
+    expect(html).not.toContain('3ヶ月以内');
   });
 });
