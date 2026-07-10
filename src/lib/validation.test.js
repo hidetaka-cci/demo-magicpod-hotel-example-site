@@ -165,6 +165,26 @@ describe('validateDateInput', () => {
     vi.useRealTimers();
   });
 
+  it('accepts bookings 91 days ahead (previously blocked by 3-month cap)', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
+    const after91 = new Date(2026, 5, 5);
+    after91.setDate(after91.getDate() + 91);
+    expect(validateDateInput(after91)).toBeUndefined();
+    vi.useRealTimers();
+  });
+
+  it('rejects bookings 121 days ahead with the 4-month message', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
+    const after121 = new Date(2026, 5, 5);
+    after121.setDate(after121.getDate() + 121);
+    expect(validateDateInput(after121)).toBe(
+      'Please enter a date within 4 months.',
+    );
+    vi.useRealTimers();
+  });
+
   it('returns undefined for valid future dates', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
