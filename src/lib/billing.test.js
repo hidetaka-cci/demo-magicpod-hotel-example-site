@@ -99,6 +99,97 @@ describe('calcTotalBill', () => {
   });
 });
 
+// These lock in the exact total-bill values shown on the reserve
+// confirmation screen and asserted by the Playwright/MagicPod E2E
+// scenarios. They failed after the weekend surcharge moved from 25%
+// to 30% because the E2E specs still hardcoded 25%-era totals.
+describe('reservation confirmation totals (E2E scenarios)', () => {
+  const wednesday = new Date(2026, 5, 3);
+  const saturday = new Date(2026, 5, 6);
+  const friday = new Date(2026, 5, 5);
+  const sunday = new Date(2026, 5, 7);
+
+  describe('お得な特典付きプラン (ja: roomBill=7000, 1 night, 1 head, no addons)', () => {
+    it('shows 7,000 on a weekday', () => {
+      expect(calcTotalBill(7000, wednesday, 1, 1, false, false, false, 0)).toBe(
+        7000,
+      );
+    });
+
+    it('shows 9,100 on a weekend (30% surcharge)', () => {
+      expect(calcTotalBill(7000, saturday, 1, 1, false, false, false, 0)).toBe(
+        9100,
+      );
+    });
+  });
+
+  describe('Plan with special offers (en-US: roomBill=70, 1 night, 1 head, no addons)', () => {
+    it('shows 70.00 on a weekday', () => {
+      expect(calcTotalBill(70, wednesday, 1, 1, false, false, false, 0)).toBe(
+        70,
+      );
+    });
+
+    it('shows 91.00 on a weekend (30% surcharge)', () => {
+      expect(calcTotalBill(70, saturday, 1, 1, false, false, false, 0)).toBe(
+        91,
+      );
+    });
+  });
+
+  describe('プレミアムプラン (ja: roomBill=10000, 2 nights, 4 heads, breakfast + earlyCheckIn)', () => {
+    it('shows 92,000 with zero weekend nights', () => {
+      expect(
+        calcTotalBill(10000, wednesday, 2, 4, true, true, false, 1000),
+      ).toBe(92000);
+    });
+
+    it('shows 104,000 with one weekend night (Fri→Sat)', () => {
+      expect(calcTotalBill(10000, friday, 2, 4, true, true, false, 1000)).toBe(
+        104000,
+      );
+    });
+
+    it('shows 104,000 with one weekend night (Sun→Mon)', () => {
+      expect(calcTotalBill(10000, sunday, 2, 4, true, true, false, 1000)).toBe(
+        104000,
+      );
+    });
+
+    it('shows 116,000 with two weekend nights (Sat→Sun)', () => {
+      expect(
+        calcTotalBill(10000, saturday, 2, 4, true, true, false, 1000),
+      ).toBe(116000);
+    });
+  });
+
+  describe('Premium plan (en-US: roomBill=100, 2 nights, 4 heads, breakfast + earlyCheckIn)', () => {
+    it('shows 920 with zero weekend nights', () => {
+      expect(calcTotalBill(100, wednesday, 2, 4, true, true, false, 10)).toBe(
+        920,
+      );
+    });
+
+    it('shows 1,040 with one weekend night (Fri→Sat)', () => {
+      expect(calcTotalBill(100, friday, 2, 4, true, true, false, 10)).toBe(
+        1040,
+      );
+    });
+
+    it('shows 1,040 with one weekend night (Sun→Mon)', () => {
+      expect(calcTotalBill(100, sunday, 2, 4, true, true, false, 10)).toBe(
+        1040,
+      );
+    });
+
+    it('shows 1,160 with two weekend nights (Sat→Sun)', () => {
+      expect(calcTotalBill(100, saturday, 2, 4, true, true, false, 10)).toBe(
+        1160,
+      );
+    });
+  });
+});
+
 describe('property-based', () => {
   it('returns a finite non-negative total for positive inputs', () => {
     fc.assert(
