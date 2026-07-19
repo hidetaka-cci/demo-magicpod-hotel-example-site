@@ -85,6 +85,19 @@ describe('reserve.js', () => {
     expect($('#date').val()).toBeTruthy();
   });
 
+  // Regression: datepicker maxDate must match the booking window in
+  // validateDateInput (120 days). Previously fixed to 90, which shrunk the
+  // UI window below what the validator accepts and broke the MagicPod
+  // "未ログイン状態での宿泊予約" scenario.
+  it('caps datepicker at the 120-day booking window', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    const options = $('#date').data('datepicker-options');
+    expect(options.maxDate).toBe(120);
+  });
+
   it('returns early from total update when date cannot be parsed', async () => {
     mountHtml(reservePageHtml);
     setLocation('/en-US/reserve.html', '?plan-id=4');
