@@ -8,6 +8,7 @@ import {
 import { mountHtml, reservePageHtml } from '../test/helpers/dom-fixtures.js';
 import { loadPageScript } from '../test/helpers/page-loader.js';
 import { login } from './lib/session.js';
+import { BOOKING_WINDOW_DAYS } from './lib/validation.js';
 
 describe('reserve.js', () => {
   it('redirects when plan-id query is missing', async () => {
@@ -83,6 +84,18 @@ describe('reserve.js', () => {
     const options = $('#date').data('datepicker-options');
     options.onSelect.call($('#date')[0]);
     expect($('#date').val()).toBeTruthy();
+  });
+
+  // Regression: MagicPod batch-run #48 / #49 ("100日先での宿泊予約") failed because
+  // the datepicker capped selection at 90 days even after validateDateInput was
+  // extended to a 4-month window. Keep the picker and validation in lockstep.
+  it('datepicker maxDate matches the 4-month booking window', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    const options = $('#date').data('datepicker-options');
+    expect(options.maxDate).toBe(BOOKING_WINDOW_DAYS);
   });
 
   it('returns early from total update when date cannot be parsed', async () => {

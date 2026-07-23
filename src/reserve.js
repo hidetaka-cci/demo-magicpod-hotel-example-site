@@ -3,7 +3,7 @@ import {formatCurrency, formatDateISO, formatDateShort, parseDate } from './lib/
 import {getAdditionalPlanPrice, getLocale } from './lib/i18n.js';
 import {t} from './lib/messages.js';
 import {canDisplayPlan, genTransactionId, getSessionUser, getUser, redirectToTop} from './lib/session.js';
-import {resetCustomValidity, setValidityMessage, validateDateInput} from './lib/validation.js';
+import {BOOKING_WINDOW_DAYS, resetCustomValidity, setValidityMessage, validateDateInput} from './lib/validation.js';
 
 $(() => {
   // Check login
@@ -71,7 +71,7 @@ $(() => {
   // Setup datepicker
   $('#date').datepicker({
     showButtonPanel: true,
-    maxDate: 90,
+    maxDate: BOOKING_WINDOW_DAYS,
     minDate: 1,
     onSelect: function() {
       $(this).trigger('change');

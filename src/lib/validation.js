@@ -1,5 +1,7 @@
 import {t} from './messages.js';
 
+export const BOOKING_WINDOW_DAYS = 120;
+
 /**
  * Reset all validation states
  * @param  {jQuery} $inputs
@@ -66,7 +68,7 @@ export function validateDateInput(date) {
   } else {
     const now = new Date();
     const bookingDeadline = new Date();
-    bookingDeadline.setDate(bookingDeadline.getDate() + 120);
+    bookingDeadline.setDate(bookingDeadline.getDate() + BOOKING_WINDOW_DAYS);
     if (date.getTime() < now.getTime()) {
       return t('validation.shoudBeNextDay');
     } else if (date.getTime() > bookingDeadline.getTime()) {
