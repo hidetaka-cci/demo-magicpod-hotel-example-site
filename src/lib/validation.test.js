@@ -165,6 +165,16 @@ describe('validateDateInput', () => {
     vi.useRealTimers();
   });
 
+  it('accepts a reservation exactly 100 days ahead', () => {
+    vi.useFakeTimers();
+    const now = new Date(2026, 5, 5, 12, 0, 0);
+    vi.setSystemTime(now);
+    const hundredDaysAhead = new Date(now);
+    hundredDaysAhead.setDate(hundredDaysAhead.getDate() + 100);
+    expect(validateDateInput(hundredDaysAhead)).toBeUndefined();
+    vi.useRealTimers();
+  });
+
   it('returns undefined for valid future dates', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
