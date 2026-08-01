@@ -85,6 +85,17 @@ describe('reserve.js', () => {
     expect($('#date').val()).toBeTruthy();
   });
 
+  it('configures datepicker to allow selecting dates within the 4-month booking window', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    const options = $('#date').data('datepicker-options');
+    // Booking window was extended to 4 months (120 days) in the validation layer.
+    // The datepicker maxDate must match, otherwise users cannot pick valid month-4 dates.
+    expect(options.maxDate).toBe(120);
+  });
+
   it('returns early from total update when date cannot be parsed', async () => {
     mountHtml(reservePageHtml);
     setLocation('/en-US/reserve.html', '?plan-id=4');
