@@ -237,16 +237,18 @@ test.describe('宿泊予約', () => {
       'お得な特典付きプラン',
     );
 
-    const after90 = new Date();
-    after90.setDate(after90.getDate() + 91);
+    const beyondBookingWindow = new Date();
+    beyondBookingWindow.setDate(beyondBookingWindow.getDate() + 121);
 
-    await reservePage.getByLabel('宿泊日 必須').fill(formatShort(after90));
+    await reservePage
+      .getByLabel('宿泊日 必須')
+      .fill(formatShort(beyondBookingWindow));
     await reservePage.getByLabel('宿泊数 必須').fill('10');
     await reservePage.getByLabel('人数 必須').fill('10');
     await reservePage.getByLabel('氏名 必須').fill('テスト太郎');
 
     await expect(reservePage.locator('#date ~ .invalid-feedback')).toHaveText(
-      '3ヶ月以内の日付を入力してください。',
+      '4ヶ月以内の日付を入力してください。',
     );
     await expect(reservePage.locator('#term ~ .invalid-feedback')).toHaveText(
       '9以下の値を入力してください。',
