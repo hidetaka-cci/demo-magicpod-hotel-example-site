@@ -104,7 +104,7 @@ describe('reserve.js', () => {
     setLocation('/en-US/reserve.html', '?plan-id=4');
     await loadPageScript('reserve.js');
 
-    $('#date').val('12/15/2026');
+    $('#date').val('2026-12-15');
     $('#term').val('2');
     $('#head-count').val('2');
     $('#breakfast').prop('checked', true);
@@ -132,7 +132,7 @@ describe('reserve.js', () => {
     setLocation('/en-US/reserve.html', '?plan-id=4');
     await loadPageScript('reserve.js');
 
-    $('#date').val('12/15/2026');
+    $('#date').val('2026-12-15');
     $('#term').val('2');
     $('#head-count').val('2');
     $('#username').val('Guest User');
@@ -157,7 +157,7 @@ describe('reserve.js', () => {
     try {
       vi.useFakeTimers();
       vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
-      $('#date').val('06/04/2026');
+      $('#date').val('2026-06-04');
       vi.spyOn($('#date')[0], 'checkValidity').mockReturnValue(true);
       $('#date').trigger('change');
       expect($('#date')[0].validationMessage).toBeTruthy();
