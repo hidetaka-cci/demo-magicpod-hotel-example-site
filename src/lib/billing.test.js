@@ -99,6 +99,25 @@ describe('calcTotalBill', () => {
   });
 });
 
+describe('reserve.spec e2e scenario (PR#7 30% weekend surcharge)', () => {
+  const planRoomBill = 7000;
+  const planAdditional = 1000;
+
+  it('weekend single-night stay total matches the amount shown on the reservation page', () => {
+    const saturday = new Date(2026, 5, 6);
+    expect(
+      calcTotalBill(planRoomBill, saturday, 1, 1, false, false, false, planAdditional),
+    ).toBe(9100);
+  });
+
+  it('weekday single-night stay total matches the amount shown on the reservation page', () => {
+    const monday = new Date(2026, 5, 1);
+    expect(
+      calcTotalBill(planRoomBill, monday, 1, 1, false, false, false, planAdditional),
+    ).toBe(7000);
+  });
+});
+
 describe('property-based', () => {
   it('returns a finite non-negative total for positive inputs', () => {
     fc.assert(
