@@ -237,16 +237,16 @@ test.describe('宿泊予約', () => {
       'お得な特典付きプラン',
     );
 
-    const after90 = new Date();
-    after90.setDate(after90.getDate() + 91);
+    const afterBookingWindow = new Date();
+    afterBookingWindow.setDate(afterBookingWindow.getDate() + 121);
 
-    await reservePage.getByLabel('宿泊日 必須').fill(formatShort(after90));
+    await reservePage.getByLabel('宿泊日 必須').fill(formatShort(afterBookingWindow));
     await reservePage.getByLabel('宿泊数 必須').fill('10');
     await reservePage.getByLabel('人数 必須').fill('10');
     await reservePage.getByLabel('氏名 必須').fill('テスト太郎');
 
     await expect(reservePage.locator('#date ~ .invalid-feedback')).toHaveText(
-      '3ヶ月以内の日付を入力してください。',
+      '4ヶ月以内の日付を入力してください。',
     );
     await expect(reservePage.locator('#term ~ .invalid-feedback')).toHaveText(
       '9以下の値を入力してください。',
@@ -408,7 +408,7 @@ test.describe('宿泊予約', () => {
     const day = expectedStart.getDay();
     const weekend = day === 0 || day === 6;
     const expectedTotalBill = weekend
-      ? '合計 8,750円（税込み）'
+      ? '合計 9,100円（税込み）'
       : '合計 7,000円（税込み）';
     const expectedTerm = `${formatLong(expectedStart)} 〜 ${formatLong(expectedEnd)} 1泊`;
 
@@ -488,9 +488,9 @@ test.describe('宿泊予約', () => {
     const dow = expectedStart.getDay();
     const expectedTotalBill =
       dow === 6
-        ? '合計 112,000円（税込み）'
+        ? '合計 116,000円（税込み）'
         : dow === 0 || dow === 5
-          ? '合計 102,000円（税込み）'
+          ? '合計 104,000円（税込み）'
           : '合計 92,000円（税込み）';
     const expectedTerm = `${formatLong(expectedStart)} 〜 ${formatLong(expectedEnd)} 2泊`;
 
