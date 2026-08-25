@@ -246,18 +246,18 @@ test.describe('Reservation', () => {
       'Plan with special offers',
     );
 
-    const after90 = new Date();
-    after90.setDate(after90.getDate() + 91);
+    const afterBookingWindow = new Date();
+    afterBookingWindow.setDate(afterBookingWindow.getDate() + 121);
 
     await reservePage
       .getByLabel('Check-in required')
-      .fill(formatShort(after90));
+      .fill(formatShort(afterBookingWindow));
     await reservePage.getByLabel('Stay Required').fill('10');
     await reservePage.getByLabel('Guests Required').fill('10');
     await reservePage.getByLabel('Name Required').fill('the tester');
 
     await expect(reservePage.locator('#date ~ .invalid-feedback')).toHaveText(
-      'Please enter a date within 3 months.',
+      'Please enter a date within 4 months.',
     );
     await expect(reservePage.locator('#term ~ .invalid-feedback')).toHaveText(
       'Value must be less than or equal to 9.',
@@ -421,7 +421,7 @@ test.describe('Reservation', () => {
     const day = expectedStart.getDay();
     const weekend = day === 0 || day === 6;
     const expectedTotalBill = weekend
-      ? 'Total $87.50 (included taxes)'
+      ? 'Total $91.00 (included taxes)'
       : 'Total $70.00 (included taxes)';
     const expectedTerm = `${formatLong(expectedStart)} - ${formatLong(expectedEnd)}. 1 night(s)`;
 
@@ -502,9 +502,9 @@ test.describe('Reservation', () => {
     const dow = expectedStart.getDay();
     const expectedTotalBill =
       dow === 6
-        ? 'Total $1,120.00 (included taxes)'
+        ? 'Total $1,160.00 (included taxes)'
         : dow === 0 || dow === 5
-          ? 'Total $1,020.00 (included taxes)'
+          ? 'Total $1,040.00 (included taxes)'
           : 'Total $920.00 (included taxes)';
     const expectedTerm = `${formatLong(expectedStart)} - ${formatLong(expectedEnd)}. 2 night(s)`;
 
