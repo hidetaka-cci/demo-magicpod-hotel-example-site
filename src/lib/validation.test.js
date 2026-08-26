@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import {
   resetCustomValidity,
@@ -170,5 +172,21 @@ describe('validateDateInput', () => {
     vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
     expect(validateDateInput(new Date(2026, 6, 1))).toBeUndefined();
     vi.useRealTimers();
+  });
+});
+
+describe('reserve page booking-window copy', () => {
+  const repoRoot = resolve(__dirname, '..', '..');
+  const enHtml = readFileSync(resolve(repoRoot, 'en-US', 'reserve.html'), 'utf8');
+  const jaHtml = readFileSync(resolve(repoRoot, 'ja', 'reserve.html'), 'utf8');
+
+  it('en-US reserve.html help text matches the 4-month booking window', () => {
+    expect(enHtml).toContain('within 4 months');
+    expect(enHtml).not.toContain('within 3 months');
+  });
+
+  it('ja reserve.html help text matches the 4-month booking window', () => {
+    expect(jaHtml).toContain('4ヶ月以内');
+    expect(jaHtml).not.toContain('3ヶ月以内');
   });
 });
