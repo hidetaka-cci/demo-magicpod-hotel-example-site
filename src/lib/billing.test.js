@@ -97,6 +97,16 @@ describe('calcTotalBill', () => {
       ),
     ).toBe(22000);
   });
+
+  it('matches the E2E-displayed weekend total for the "Plan with special offers" (7000 JPY / $70)', () => {
+    const saturday = new Date(2026, 5, 6);
+    expect(
+      calcTotalBill(7000, saturday, 1, 1, false, false, false, 0),
+    ).toBe(9100);
+    expect(
+      calcTotalBill(70, saturday, 1, 1, false, false, false, 0),
+    ).toBe(91);
+  });
 });
 
 describe('property-based', () => {
