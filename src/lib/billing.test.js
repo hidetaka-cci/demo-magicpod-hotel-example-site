@@ -97,6 +97,45 @@ describe('calcTotalBill', () => {
       ),
     ).toBe(22000);
   });
+
+  // Locks the totals asserted by the "Plan with special offers" E2E scenario
+  // (data/*/plan_data.json id=1: roomBill 7000 JPY / 70.00 USD, 1 night, 1 person)
+  // after the weekend surcharge was raised from 25% to 30%.
+  describe('special offers plan (single night, single guest)', () => {
+    const specialOfferRoomBill = 7000;
+
+    it('totals base room bill on a weekday', () => {
+      const weekday = new Date(2026, 5, 3);
+      expect(
+        calcTotalBill(
+          specialOfferRoomBill,
+          weekday,
+          1,
+          1,
+          false,
+          false,
+          false,
+          0,
+        ),
+      ).toBe(7000);
+    });
+
+    it('adds the 30% weekend surcharge on a weekend night', () => {
+      const weekend = new Date(2026, 5, 6);
+      expect(
+        calcTotalBill(
+          specialOfferRoomBill,
+          weekend,
+          1,
+          1,
+          false,
+          false,
+          false,
+          0,
+        ),
+      ).toBe(9100);
+    });
+  });
 });
 
 describe('property-based', () => {
