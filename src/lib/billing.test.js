@@ -10,7 +10,7 @@ function expectedWeekendSurcharge(roomBill, date, term, headCount) {
     const night = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     night.setDate(night.getDate() + i);
     if (night.getDay() === 0 || night.getDay() === 6) {
-      surcharge += Math.round((roomBill * 3 * headCount) / 10);
+      surcharge += Math.round((roomBill * headCount) / 4);
     }
   }
   return surcharge;
@@ -32,7 +32,7 @@ describe('calcTotalBill', () => {
     const date = new Date(2026, 5, 6);
     expect(
       calcTotalBill(roomBill, date, 1, headCount, false, false, false, 0),
-    ).toBe(26000);
+    ).toBe(25000);
   });
 
   it('applies weekend surcharge across multiple nights', () => {
@@ -47,7 +47,7 @@ describe('calcTotalBill', () => {
       false,
       0,
     );
-    expect(total).toBe(72000);
+    expect(total).toBe(70000);
   });
 
   it('adds breakfast for all nights', () => {
@@ -96,6 +96,13 @@ describe('calcTotalBill', () => {
         additionalPlanPrice,
       ),
     ).toBe(22000);
+  });
+
+  it('matches the MagicPod-facing 25% weekend surcharge contract', () => {
+    const saturday = new Date(2026, 5, 6);
+    expect(
+      calcTotalBill(7000, saturday, 1, 1, false, false, false, 1000),
+    ).toBe(8750);
   });
 });
 
