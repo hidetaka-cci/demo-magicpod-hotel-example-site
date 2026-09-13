@@ -16,7 +16,7 @@ export function calcTotalBill(roomBill, date, term, headCount, breakfast, earlyC
     const restDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     restDate.setDate(restDate.getDate() + i);
     if (restDate.getDay() === 0 || restDate.getDay() === 6) {
-      totalBill += Math.round((roomBill * 3 * headCount) / 10);
+      totalBill += Math.round((roomBill * headCount) / 4);
     }
   }
 

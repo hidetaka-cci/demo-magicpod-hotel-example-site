@@ -1,6 +1,6 @@
 {
   "validation": {
-    "valueMissing": "入力が必須です。",
+    "valueMissing": "このフィールドを入力してください。",
     "typeMismatch": {
       "email": "メールアドレスを入力してください。",
       "url": "URLを入力してください。"
@@ -13,7 +13,7 @@
     "rangeUnderflow": "{}以上の値を入力してください。",
     "stepMismatch": "有効な値を入力してください。",
     "shoudBeNextDay": "翌日以降の日付を入力してください。",
-    "shouldBeFourMonth": "4ヶ月以内の日付を入力してください。",
+    "shouldBeThreeMonth": "3ヶ月以内の日付を入力してください。",
     "mailOrAddressMismatch": "メールアドレスまたはパスワードが違います。",
     "existsMail": "このメールアドレスはすでに登録済みです。",
     "passwordUnmatch": "入力されたパスワードと一致しません。",
@@ -47,8 +47,8 @@
     "reserveLink": "このプランで予約"
   },
   "reserve": {
-    "planDescLong": "お一人様1泊{}〜、土日は30%アップ。{}名様〜{}名様、最長{}泊",
-    "planDescShort": "お一人様1泊{}〜、土日は30%アップ",
+    "planDescLong": "お一人様1泊{}〜、土日は25%アップ。{}名様〜{}名様、最長{}泊",
+    "planDescShort": "お一人様1泊{}〜、土日は25%アップ",
     "roomInfo": "部屋情報",
     "totalBill": "合計 {}（税込み）",
     "term": "{} 〜 {} {}泊",
