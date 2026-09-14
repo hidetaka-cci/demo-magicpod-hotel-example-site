@@ -85,6 +85,16 @@ describe('reserve.js', () => {
     expect($('#date').val()).toBeTruthy();
   });
 
+  it('configures datepicker maxDate to match the 4-month booking window', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    const options = $('#date').data('datepicker-options');
+    expect(options.maxDate).toBe(120);
+    expect(options.minDate).toBe(1);
+  });
+
   it('returns early from total update when date cannot be parsed', async () => {
     mountHtml(reservePageHtml);
     setLocation('/en-US/reserve.html', '?plan-id=4');
@@ -161,6 +171,30 @@ describe('reserve.js', () => {
       vi.spyOn($('#date')[0], 'checkValidity').mockReturnValue(true);
       $('#date').trigger('change');
       expect($('#date')[0].validationMessage).toBeTruthy();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('sets a custom validity message on submit when date is in the past', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    try {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
+      $('#date').val('06/04/2026');
+      const setCustomValidity = vi.spyOn(
+        $('#date')[0],
+        'setCustomValidity',
+      );
+      vi.spyOn($('#date')[0], 'checkValidity').mockReturnValue(true);
+      vi.spyOn($('#reserve-form')[0], 'checkValidity').mockReturnValue(false);
+      $('#reserve-form').trigger('submit');
+      expect(setCustomValidity).toHaveBeenCalledWith(
+        'Please enter a date after tomorrow.',
+      );
     } finally {
       vi.useRealTimers();
     }
