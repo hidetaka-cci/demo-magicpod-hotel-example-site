@@ -85,6 +85,15 @@ describe('reserve.js', () => {
     expect($('#date').val()).toBeTruthy();
   });
 
+  it('lets the datepicker span the full 4-month booking window', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    const options = $('#date').data('datepicker-options');
+    expect(options.maxDate).toBe(120);
+  });
+
   it('returns early from total update when date cannot be parsed', async () => {
     mountHtml(reservePageHtml);
     setLocation('/en-US/reserve.html', '?plan-id=4');
@@ -132,21 +141,29 @@ describe('reserve.js', () => {
     setLocation('/en-US/reserve.html', '?plan-id=4');
     await loadPageScript('reserve.js');
 
-    $('#date').val('12/15/2026');
-    $('#term').val('2');
-    $('#head-count').val('2');
-    $('#username').val('Guest User');
-    $('#contact').val('no');
-    $('#comment').val('Quiet room please');
-    vi.spyOn($('#reserve-form')[0], 'checkValidity').mockReturnValue(true);
-    vi.spyOn($('#date')[0], 'checkValidity').mockReturnValue(true);
-    $('#reserve-form').trigger('submit');
+    try {
+      // Pin now so the fixture date is always outside the 4-month window,
+      // exercising the submit-handler custom-validity branch deterministically.
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
+      $('#date').val('12/15/2026');
+      $('#term').val('2');
+      $('#head-count').val('2');
+      $('#username').val('Guest User');
+      $('#contact').val('no');
+      $('#comment').val('Quiet room please');
+      vi.spyOn($('#reserve-form')[0], 'checkValidity').mockReturnValue(true);
+      vi.spyOn($('#date')[0], 'checkValidity').mockReturnValue(true);
+      $('#reserve-form').trigger('submit');
 
-    expect(document.cookie).toContain('transaction=');
-    const transactionId = document.cookie.match(/transaction=([^;]+)/)[1];
-    const stored = JSON.parse(sessionStorage.getItem(transactionId));
-    expect(stored.planName).toBe('Staying without meals');
-    expect(stored.comment).toBe('Quiet room please');
+      expect(document.cookie).toContain('transaction=');
+      const transactionId = document.cookie.match(/transaction=([^;]+)/)[1];
+      const stored = JSON.parse(sessionStorage.getItem(transactionId));
+      expect(stored.planName).toBe('Staying without meals');
+      expect(stored.comment).toBe('Quiet room please');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('validates date on change when date is in the past', async () => {
