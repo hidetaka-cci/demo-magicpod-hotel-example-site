@@ -408,7 +408,7 @@ test.describe('宿泊予約', () => {
     const day = expectedStart.getDay();
     const weekend = day === 0 || day === 6;
     const expectedTotalBill = weekend
-      ? '合計 8,750円（税込み）'
+      ? '合計 9,100円（税込み）'
       : '合計 7,000円（税込み）';
     const expectedTerm = `${formatLong(expectedStart)} 〜 ${formatLong(expectedEnd)} 1泊`;
 
@@ -488,9 +488,9 @@ test.describe('宿泊予約', () => {
     const dow = expectedStart.getDay();
     const expectedTotalBill =
       dow === 6
-        ? '合計 112,000円（税込み）'
+        ? '合計 116,000円（税込み）'
         : dow === 0 || dow === 5
-          ? '合計 102,000円（税込み）'
+          ? '合計 104,000円（税込み）'
           : '合計 92,000円（税込み）';
     const expectedTerm = `${formatLong(expectedStart)} 〜 ${formatLong(expectedEnd)} 2泊`;
 
