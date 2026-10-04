@@ -66,7 +66,7 @@ export function validateDateInput(date) {
   } else {
     const now = new Date();
     const bookingDeadline = new Date();
-    bookingDeadline.setDate(bookingDeadline.getDate() + 120);
+    bookingDeadline.setMonth(bookingDeadline.getMonth() + 4);
     if (date.getTime() < now.getTime()) {
       return t('validation.shoudBeNextDay');
     } else if (date.getTime() > bookingDeadline.getTime()) {

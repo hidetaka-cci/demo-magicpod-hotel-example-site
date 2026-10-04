@@ -165,6 +165,14 @@ describe('validateDateInput', () => {
     vi.useRealTimers();
   });
 
+  it('accepts a date exactly 4 calendar months in the future', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 9, 4, 12, 0, 0));
+    const fourMonthsLater = new Date(2027, 1, 4, 12, 0, 0);
+    expect(validateDateInput(fourMonthsLater)).toBeUndefined();
+    vi.useRealTimers();
+  });
+
   it('returns undefined for valid future dates', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
