@@ -421,7 +421,7 @@ test.describe('Reservation', () => {
     const day = expectedStart.getDay();
     const weekend = day === 0 || day === 6;
     const expectedTotalBill = weekend
-      ? 'Total $87.50 (included taxes)'
+      ? 'Total $91.00 (included taxes)'
       : 'Total $70.00 (included taxes)';
     const expectedTerm = `${formatLong(expectedStart)} - ${formatLong(expectedEnd)}. 1 night(s)`;
 
