@@ -85,6 +85,16 @@ describe('reserve.js', () => {
     expect($('#date').val()).toBeTruthy();
   });
 
+  it('allows picking dates across the full 4-month booking window', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    const options = $('#date').data('datepicker-options');
+    expect(options.minDate).toBe(1);
+    expect(options.maxDate).toBe(120);
+  });
+
   it('returns early from total update when date cannot be parsed', async () => {
     mountHtml(reservePageHtml);
     setLocation('/en-US/reserve.html', '?plan-id=4');
@@ -147,6 +157,23 @@ describe('reserve.js', () => {
     const stored = JSON.parse(sessionStorage.getItem(transactionId));
     expect(stored.planName).toBe('Staying without meals');
     expect(stored.comment).toBe('Quiet room please');
+  });
+
+  it('rejects submit with a date beyond the 4-month booking window', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    const beyondWindow = new Date();
+    beyondWindow.setDate(beyondWindow.getDate() + 121);
+    const mm = String(beyondWindow.getMonth() + 1).padStart(2, '0');
+    const dd = String(beyondWindow.getDate()).padStart(2, '0');
+    $('#date').val(`${mm}/${dd}/${beyondWindow.getFullYear()}`);
+    vi.spyOn($('#date')[0], 'checkValidity').mockReturnValue(true);
+    vi.spyOn($('#reserve-form')[0], 'checkValidity').mockReturnValue(true);
+    $('#reserve-form').trigger('submit');
+
+    expect($('#date')[0].validationMessage).toBeTruthy();
   });
 
   it('validates date on change when date is in the past', async () => {
