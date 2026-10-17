@@ -75,6 +75,15 @@ describe('reserve.js', () => {
     expect($('#email').parent().hasClass('d-none')).toBe(true);
   });
 
+  it('datepicker allows booking up to 120 days ahead (4-month window)', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    const options = $('#date').data('datepicker-options');
+    expect(options.maxDate).toBe(120);
+  });
+
   it('triggers change when datepicker selects a date', async () => {
     mountHtml(reservePageHtml);
     setLocation('/en-US/reserve.html', '?plan-id=4');
