@@ -21,6 +21,47 @@ describe('calcTotalBill', () => {
   const headCount = 2;
   const additionalPlanPrice = 1000;
 
+  // Plan id=0 (roomBill=7000, 1 person, 1 night) — mirrors E2E "initial values" scenario
+  describe('plan-with-special-offers (roomBill=7000, 1 person, 1 night)', () => {
+    it('weekday: no surcharge', () => {
+      const date = new Date(2026, 5, 3); // Wednesday
+      expect(calcTotalBill(7000, date, 1, 1, false, false, false, 0)).toBe(7000);
+    });
+
+    it('saturday: 30% surcharge → 9100', () => {
+      const date = new Date(2026, 5, 6); // Saturday
+      expect(calcTotalBill(7000, date, 1, 1, false, false, false, 0)).toBe(9100);
+    });
+
+    it('sunday: 30% surcharge → 9100', () => {
+      const date = new Date(2026, 5, 7); // Sunday
+      expect(calcTotalBill(7000, date, 1, 1, false, false, false, 0)).toBe(9100);
+    });
+  });
+
+  // Plan id=1 (roomBill=10000, 4 people, 2 nights, breakfast+earlyCheckIn) — mirrors E2E logged-in scenario
+  describe('premium-plan (roomBill=10000, 4 people, 2 nights, breakfast+earlyCheckIn, addPrice=1000)', () => {
+    it('weekday check-in (Mon–Thu): no surcharge → 92000', () => {
+      const date = new Date(2026, 5, 1); // Monday
+      expect(calcTotalBill(10000, date, 2, 4, true, true, false, 1000)).toBe(92000);
+    });
+
+    it('saturday check-in: 2 weekend nights (30%) → 116000', () => {
+      const date = new Date(2026, 5, 6); // Saturday → Sat+Sun both weekend
+      expect(calcTotalBill(10000, date, 2, 4, true, true, false, 1000)).toBe(116000);
+    });
+
+    it('friday check-in: 1 weekend night (Sat) at 30% → 104000', () => {
+      const date = new Date(2026, 5, 5); // Friday → Fri(weekday)+Sat(weekend)
+      expect(calcTotalBill(10000, date, 2, 4, true, true, false, 1000)).toBe(104000);
+    });
+
+    it('sunday check-in: 1 weekend night (Sun) at 30% → 104000', () => {
+      const date = new Date(2026, 5, 7); // Sunday → Sun(weekend)+Mon(weekday)
+      expect(calcTotalBill(10000, date, 2, 4, true, true, false, 1000)).toBe(104000);
+    });
+  });
+
   it('calculates weekday-only stay without add-ons', () => {
     const date = new Date(2026, 5, 3);
     expect(
