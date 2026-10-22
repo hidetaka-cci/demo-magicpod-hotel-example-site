@@ -195,4 +195,22 @@ describe('reserve.js', () => {
     await loadPageScript('reserve.js');
     expect(getAssignMock()).toHaveBeenCalled();
   });
+
+  it('sets custom validity on submit when date is past but html-valid', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    try {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
+      $('#date').val('06/04/2026');
+      vi.spyOn($('#date')[0], 'checkValidity').mockReturnValue(true);
+      vi.spyOn($('#reserve-form')[0], 'checkValidity').mockReturnValue(false);
+      $('#reserve-form').trigger('submit');
+      expect($('#date')[0].validationMessage).toBeTruthy();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
