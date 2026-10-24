@@ -75,6 +75,54 @@ describe('reserve.js', () => {
     expect($('#email').parent().hasClass('d-none')).toBe(true);
   });
 
+  it('initializes datepicker with maxDate of 120 days', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    const options = $('#date').data('datepicker-options');
+    expect(options.maxDate).toBe(120);
+  });
+
+  it('rejects date beyond 4-month booking window on submit', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    try {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
+      // Oct 13, 2026 = 130 days from June 5 (beyond 120-day limit)
+      $('#date').val('10/13/2026');
+      $('#reserve-form').trigger('submit');
+
+      // Custom validity should be set because the date exceeds the 4-month window
+      expect($('#date')[0].validity.customError).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('accepts date 100 days ahead on submit (MagicPod scenario)', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    try {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
+      // Sep 13, 2026 = 100 days from June 5 (within 120-day limit)
+      $('#date').val('09/13/2026');
+      vi.spyOn($('#date')[0], 'checkValidity').mockReturnValue(true);
+      vi.spyOn($('#reserve-form')[0], 'checkValidity').mockReturnValue(false);
+      $('#reserve-form').trigger('submit');
+
+      expect($('#date')[0].validity.customError).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('triggers change when datepicker selects a date', async () => {
     mountHtml(reservePageHtml);
     setLocation('/en-US/reserve.html', '?plan-id=4');
