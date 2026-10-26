@@ -99,6 +99,89 @@ describe('calcTotalBill', () => {
   });
 });
 
+// These tests pin the exact billing amounts used in E2E/MagicPod scenarios.
+// Keep them in sync with e2e/*/reserve.spec.ts expectations.
+describe('E2E scenario billing', () => {
+  // en-US "Plan with special offers": roomBill=$70, 1 guest, 1 night, no add-ons
+  it('en-US not-logged-in: weekday stay', () => {
+    const wednesday = new Date(2026, 5, 3); // Wed
+    expect(calcTotalBill(70, wednesday, 1, 1, false, false, false, 0)).toBe(70);
+  });
+
+  it('en-US not-logged-in: weekend stay (Saturday)', () => {
+    const saturday = new Date(2026, 5, 6); // Sat
+    // 30% surcharge: Math.round(70*3*1/10) = 21 → 70+21 = 91
+    expect(calcTotalBill(70, saturday, 1, 1, false, false, false, 0)).toBe(91);
+  });
+
+  it('en-US not-logged-in: weekend stay (Sunday)', () => {
+    const sunday = new Date(2026, 5, 7); // Sun
+    expect(calcTotalBill(70, sunday, 1, 1, false, false, false, 0)).toBe(91);
+  });
+
+  // en-US "Premium plan": roomBill=$100, 4 guests, 2 nights, breakfast+earlyCheckIn, additionalPlanPrice=$10
+  it('en-US logged-in: weekday check-in', () => {
+    const wednesday = new Date(2026, 5, 3); // Wed→Thu
+    // base=800, breakfast=80, earlyCheckIn=40 → 920
+    expect(calcTotalBill(100, wednesday, 2, 4, true, true, false, 10)).toBe(920);
+  });
+
+  it('en-US logged-in: Friday check-in (1 weekend night)', () => {
+    const friday = new Date(2026, 5, 5); // Fri→Sat
+    // base=800, surcharge=120(Sat), breakfast=80, earlyCheckIn=40 → 1040
+    expect(calcTotalBill(100, friday, 2, 4, true, true, false, 10)).toBe(1040);
+  });
+
+  it('en-US logged-in: Sunday check-in (1 weekend night)', () => {
+    const sunday = new Date(2026, 5, 7); // Sun→Mon
+    // base=800, surcharge=120(Sun), breakfast=80, earlyCheckIn=40 → 1040
+    expect(calcTotalBill(100, sunday, 2, 4, true, true, false, 10)).toBe(1040);
+  });
+
+  it('en-US logged-in: Saturday check-in (2 weekend nights)', () => {
+    const saturday = new Date(2026, 5, 6); // Sat→Sun
+    // base=800, surcharge=120+120=240(Sat+Sun), breakfast=80, earlyCheckIn=40 → 1160
+    expect(calcTotalBill(100, saturday, 2, 4, true, true, false, 10)).toBe(1160);
+  });
+
+  // ja "お得な特典付きプラン": roomBill=7000, 1 guest, 1 night, no add-ons
+  it('ja not-logged-in: weekday stay', () => {
+    const wednesday = new Date(2026, 5, 3);
+    expect(calcTotalBill(7000, wednesday, 1, 1, false, false, false, 0)).toBe(7000);
+  });
+
+  it('ja not-logged-in: weekend stay (Saturday)', () => {
+    const saturday = new Date(2026, 5, 6);
+    // 30% surcharge: Math.round(7000*3*1/10) = 2100 → 9100
+    expect(calcTotalBill(7000, saturday, 1, 1, false, false, false, 0)).toBe(9100);
+  });
+
+  // ja "プレミアムプラン": roomBill=10000, 4 guests, 2 nights, breakfast+earlyCheckIn, additionalPlanPrice=1000
+  it('ja logged-in: weekday check-in', () => {
+    const wednesday = new Date(2026, 5, 3);
+    // base=80000, breakfast=8000, earlyCheckIn=4000 → 92000
+    expect(calcTotalBill(10000, wednesday, 2, 4, true, true, false, 1000)).toBe(92000);
+  });
+
+  it('ja logged-in: Friday check-in (1 weekend night)', () => {
+    const friday = new Date(2026, 5, 5);
+    // base=80000, surcharge=12000(Sat), breakfast=8000, earlyCheckIn=4000 → 104000
+    expect(calcTotalBill(10000, friday, 2, 4, true, true, false, 1000)).toBe(104000);
+  });
+
+  it('ja logged-in: Sunday check-in (1 weekend night)', () => {
+    const sunday = new Date(2026, 5, 7);
+    // base=80000, surcharge=12000(Sun), breakfast=8000, earlyCheckIn=4000 → 104000
+    expect(calcTotalBill(10000, sunday, 2, 4, true, true, false, 1000)).toBe(104000);
+  });
+
+  it('ja logged-in: Saturday check-in (2 weekend nights)', () => {
+    const saturday = new Date(2026, 5, 6);
+    // base=80000, surcharge=12000+12000=24000(Sat+Sun), breakfast=8000, earlyCheckIn=4000 → 116000
+    expect(calcTotalBill(10000, saturday, 2, 4, true, true, false, 1000)).toBe(116000);
+  });
+});
+
 describe('property-based', () => {
   it('returns a finite non-negative total for positive inputs', () => {
     fc.assert(
