@@ -99,6 +99,43 @@ describe('calcTotalBill', () => {
   });
 });
 
+  describe('30% weekend surcharge — E2E scenarios', () => {
+    it('Standard plan: Saturday 1 night 1 guest charges 30% surcharge', () => {
+      const saturday = new Date(2026, 5, 6);
+      expect(
+        calcTotalBill(7000, saturday, 1, 1, false, false, false, 0),
+      ).toBe(9100);
+    });
+
+    it('Premium plan: Saturday start 2 nights 4 guests with breakfast and early check-in', () => {
+      const saturday = new Date(2026, 5, 6);
+      expect(
+        calcTotalBill(10000, saturday, 2, 4, true, true, false, 1000),
+      ).toBe(116000);
+    });
+
+    it('Premium plan: Friday start 2 nights 4 guests with breakfast and early check-in', () => {
+      const friday = new Date(2026, 5, 5);
+      expect(
+        calcTotalBill(10000, friday, 2, 4, true, true, false, 1000),
+      ).toBe(104000);
+    });
+
+    it('Premium plan: Sunday start 2 nights 4 guests with breakfast and early check-in', () => {
+      const sunday = new Date(2026, 5, 7);
+      expect(
+        calcTotalBill(10000, sunday, 2, 4, true, true, false, 1000),
+      ).toBe(104000);
+    });
+
+    it('Premium plan: weekday start 2 nights 4 guests with breakfast and early check-in', () => {
+      const wednesday = new Date(2026, 5, 3);
+      expect(
+        calcTotalBill(10000, wednesday, 2, 4, true, true, false, 1000),
+      ).toBe(92000);
+    });
+  });
+
 describe('property-based', () => {
   it('returns a finite non-negative total for positive inputs', () => {
     fc.assert(
