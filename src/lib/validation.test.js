@@ -165,6 +165,24 @@ describe('validateDateInput', () => {
     vi.useRealTimers();
   });
 
+  it('accepts dates 91 days ahead (previously invalid under 3-month window)', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
+    const date91 = new Date(2026, 5, 5);
+    date91.setDate(date91.getDate() + 91);
+    expect(validateDateInput(date91)).toBeUndefined();
+    vi.useRealTimers();
+  });
+
+  it('returns error for dates 121 days ahead (beyond 4-month window)', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
+    const date121 = new Date(2026, 5, 5);
+    date121.setDate(date121.getDate() + 121);
+    expect(validateDateInput(date121)).toBe('Please enter a date within 4 months.');
+    vi.useRealTimers();
+  });
+
   it('returns undefined for valid future dates', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
