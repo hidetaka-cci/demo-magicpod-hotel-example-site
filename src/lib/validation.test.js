@@ -171,4 +171,27 @@ describe('validateDateInput', () => {
     expect(validateDateInput(new Date(2026, 6, 1))).toBeUndefined();
     vi.useRealTimers();
   });
+
+  // Boundary: 91 days was the E2E test's "over" trigger under the old 3-month window.
+  // With the 4-month (120-day) window it must be accepted.
+  it('accepts a date 91 days from now (within the 4-month window)', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
+    const ninetyOneDays = new Date(2026, 5, 5);
+    ninetyOneDays.setDate(ninetyOneDays.getDate() + 91);
+    expect(validateDateInput(ninetyOneDays)).toBeUndefined();
+    vi.useRealTimers();
+  });
+
+  // Boundary: 121 days exceeds the 4-month window; must be rejected.
+  it('rejects a date 121 days from now (beyond the 4-month window)', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
+    const hundredTwentyOneDays = new Date(2026, 5, 5);
+    hundredTwentyOneDays.setDate(hundredTwentyOneDays.getDate() + 121);
+    expect(validateDateInput(hundredTwentyOneDays)).toBe(
+      'Please enter a date within 4 months.',
+    );
+    vi.useRealTimers();
+  });
 });
