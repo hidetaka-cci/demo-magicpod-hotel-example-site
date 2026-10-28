@@ -195,4 +195,17 @@ describe('reserve.js', () => {
     await loadPageScript('reserve.js');
     expect(getAssignMock()).toHaveBeenCalled();
   });
+
+  // Regression: the datepicker maxDate must match the 4-month (120-day) booking window.
+  // When maxDate was 90, jQuery UI datepicker cleared any manually-typed date beyond 90 days
+  // on Close, causing the MagicPod "100日先での宿泊予約" test to fail because the empty
+  // date field prevented form submission to the confirmation page.
+  it('datepicker maxDate matches the 4-month booking window (120 days)', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    const options = $('#date').data('datepicker-options');
+    expect(options.maxDate).toBe(120);
+  });
 });

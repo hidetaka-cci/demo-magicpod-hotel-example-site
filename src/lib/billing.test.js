@@ -282,3 +282,53 @@ describe('property-based', () => {
     );
   });
 });
+
+// Scenarios matching E2E / MagicPod test cases to catch regressions in plan-specific billing.
+describe('E2E scenario: Plan with special offers (roomBill=7000, 1 guest)', () => {
+  const wednesday = new Date(2026, 5, 3); // weekday
+  const saturday = new Date(2026, 5, 6); // weekend
+
+  it('weekday stay costs base room price only', () => {
+    expect(calcTotalBill(7000, wednesday, 1, 1, false, false, false, 0)).toBe(
+      7000,
+    );
+  });
+
+  it('weekend stay applies 30% surcharge (9100 = 7000 + 2100)', () => {
+    expect(calcTotalBill(7000, saturday, 1, 1, false, false, false, 0)).toBe(
+      9100,
+    );
+  });
+});
+
+describe('E2E scenario: Premium plan (roomBill=10000, 4 guests, 2 nights, breakfast+early check-in)', () => {
+  const wednesday = new Date(2026, 5, 3); // no weekend nights
+  const friday = new Date(2026, 5, 5); // 1 weekend night (Sat)
+  const sunday = new Date(2026, 5, 7); // 1 weekend night (Sun)
+  const saturday = new Date(2026, 5, 6); // 2 weekend nights (Sat+Sun)
+  const addOn = 1000;
+
+  it('weekday check-in: no surcharge (92000)', () => {
+    expect(
+      calcTotalBill(10000, wednesday, 2, 4, true, true, false, addOn),
+    ).toBe(92000);
+  });
+
+  it('Friday check-in: 1 weekend night surcharge (104000)', () => {
+    expect(calcTotalBill(10000, friday, 2, 4, true, true, false, addOn)).toBe(
+      104000,
+    );
+  });
+
+  it('Sunday check-in: 1 weekend night surcharge (104000)', () => {
+    expect(calcTotalBill(10000, sunday, 2, 4, true, true, false, addOn)).toBe(
+      104000,
+    );
+  });
+
+  it('Saturday check-in: 2 weekend night surcharge (116000)', () => {
+    expect(
+      calcTotalBill(10000, saturday, 2, 4, true, true, false, addOn),
+    ).toBe(116000);
+  });
+});
