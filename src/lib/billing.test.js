@@ -99,6 +99,72 @@ describe('calcTotalBill', () => {
   });
 });
 
+describe('e2e billing scenarios (30% weekend surcharge)', () => {
+  // en-US: Plan with special offers (roomBill=$70, additionalPlanPrice=$10)
+  it('en-US: 1 night / 1 guest / weekday → $70.00', () => {
+    const monday = new Date(2026, 5, 1); // Mon Jun 1 2026
+    expect(calcTotalBill(70, monday, 1, 1, false, false, false, 0)).toBe(70);
+  });
+
+  it('en-US: 1 night / 1 guest / weekend → $91.00 (not $87.50)', () => {
+    const saturday = new Date(2026, 5, 6); // Sat Jun 6 2026
+    expect(calcTotalBill(70, saturday, 1, 1, false, false, false, 0)).toBe(91);
+  });
+
+  // en-US: Premium plan (roomBill=$100, 4 guests, 2 nights, breakfast+earlyCheckIn, additionalPlanPrice=$10)
+  it('en-US: premium / 2 nights / 4 guests / weekday → $920.00', () => {
+    const tuesday = new Date(2026, 5, 2); // Tue
+    expect(calcTotalBill(100, tuesday, 2, 4, true, true, false, 10)).toBe(920);
+  });
+
+  it('en-US: premium / 2 nights / 4 guests / Sat start → $1,160.00 (not $1,120.00)', () => {
+    const saturday = new Date(2026, 5, 6); // Sat → Sat+Sun both weekend
+    expect(calcTotalBill(100, saturday, 2, 4, true, true, false, 10)).toBe(1160);
+  });
+
+  it('en-US: premium / 2 nights / 4 guests / Fri start → $1,040.00 (not $1,020.00)', () => {
+    const friday = new Date(2026, 5, 5); // Fri → Sat is weekend
+    expect(calcTotalBill(100, friday, 2, 4, true, true, false, 10)).toBe(1040);
+  });
+
+  it('en-US: premium / 2 nights / 4 guests / Sun start → $1,040.00 (not $1,020.00)', () => {
+    const sunday = new Date(2026, 5, 7); // Sun → Sun is weekend, Mon is not
+    expect(calcTotalBill(100, sunday, 2, 4, true, true, false, 10)).toBe(1040);
+  });
+
+  // ja: お得な特典付きプラン (roomBill=7000, additionalPlanPrice=1000)
+  it('ja: 1泊 / 1名 / 平日 → 7,000円', () => {
+    const monday = new Date(2026, 5, 1);
+    expect(calcTotalBill(7000, monday, 1, 1, false, false, false, 0)).toBe(7000);
+  });
+
+  it('ja: 1泊 / 1名 / 土曜 → 9,100円 (8,750円ではない)', () => {
+    const saturday = new Date(2026, 5, 6);
+    expect(calcTotalBill(7000, saturday, 1, 1, false, false, false, 0)).toBe(9100);
+  });
+
+  // ja: プレミアムプラン (roomBill=10000, 4名, 2泊, 朝食+チェックイン早め, additionalPlanPrice=1000)
+  it('ja: premium / 2泊 / 4名 / 平日 → 92,000円', () => {
+    const tuesday = new Date(2026, 5, 2);
+    expect(calcTotalBill(10000, tuesday, 2, 4, true, true, false, 1000)).toBe(92000);
+  });
+
+  it('ja: premium / 2泊 / 4名 / 土曜始まり → 116,000円 (112,000円ではない)', () => {
+    const saturday = new Date(2026, 5, 6);
+    expect(calcTotalBill(10000, saturday, 2, 4, true, true, false, 1000)).toBe(116000);
+  });
+
+  it('ja: premium / 2泊 / 4名 / 金曜始まり → 104,000円 (102,000円ではない)', () => {
+    const friday = new Date(2026, 5, 5);
+    expect(calcTotalBill(10000, friday, 2, 4, true, true, false, 1000)).toBe(104000);
+  });
+
+  it('ja: premium / 2泊 / 4名 / 日曜始まり → 104,000円 (102,000円ではない)', () => {
+    const sunday = new Date(2026, 5, 7);
+    expect(calcTotalBill(10000, sunday, 2, 4, true, true, false, 1000)).toBe(104000);
+  });
+});
+
 describe('property-based', () => {
   it('returns a finite non-negative total for positive inputs', () => {
     fc.assert(
