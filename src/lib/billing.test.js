@@ -282,3 +282,68 @@ describe('property-based', () => {
     );
   });
 });
+
+// Regression tests documenting the 30% weekend surcharge introduced in PR #7.
+// These pin the exact billing amounts the e2e tests must assert.
+describe('calcTotalBill - e2e billing scenarios (30% weekend surcharge)', () => {
+  // ja locale: お得な特典付きプラン — 7 000¥, 1 guest, 1 night
+  it('ja plan-with-special-offers: weekday stay yields 7 000', () => {
+    const monday = new Date(2026, 10, 2); // 2026-11-02 Mon
+    expect(calcTotalBill(7000, monday, 1, 1, false, false, false, 0)).toBe(7000);
+  });
+
+  it('ja plan-with-special-offers: weekend stay yields 9 100 (not 8 750)', () => {
+    const saturday = new Date(2026, 10, 7); // 2026-11-07 Sat
+    // 7 000 + round(7 000 * 3 * 1 / 10) = 7 000 + 2 100 = 9 100
+    expect(calcTotalBill(7000, saturday, 1, 1, false, false, false, 0)).toBe(9100);
+  });
+
+  // ja locale: プレミアムプラン — 10 000¥, 4 guests, 2 nights, breakfast + early-check-in (¥1 000 each)
+  it('ja premium-plan: weekday stay with breakfast+earlyCheckIn yields 92 000', () => {
+    const monday = new Date(2026, 10, 2); // 2026-11-02 Mon  (Mon + Tue: no weekend nights)
+    // base: 10 000*4*2=80 000  breakfast: 1 000*4*2=8 000  earlyCheckIn: 1 000*4=4 000
+    expect(calcTotalBill(10000, monday, 2, 4, true, true, false, 1000)).toBe(92000);
+  });
+
+  it('ja premium-plan: Friday start (1 Sat weekend night) with breakfast+earlyCheckIn yields 104 000 (not 102 000)', () => {
+    const friday = new Date(2026, 10, 6); // 2026-11-06 Fri  (nights: Fri + Sat)
+    // weekend surcharge: round(10 000*3*4/10)=12 000 for Sat night
+    // 80 000 + 12 000 + 12 000 = 104 000
+    expect(calcTotalBill(10000, friday, 2, 4, true, true, false, 1000)).toBe(104000);
+  });
+
+  it('ja premium-plan: Sunday start (1 Sun weekend night) with breakfast+earlyCheckIn yields 104 000 (not 102 000)', () => {
+    const sunday = new Date(2026, 10, 1); // 2026-11-01 Sun  (nights: Sun + Mon)
+    // weekend surcharge: round(10 000*3*4/10)=12 000 for Sun night
+    // 80 000 + 12 000 + 12 000 = 104 000
+    expect(calcTotalBill(10000, sunday, 2, 4, true, true, false, 1000)).toBe(104000);
+  });
+
+  it('ja premium-plan: Saturday start (Sat+Sun both weekend) with breakfast+earlyCheckIn yields 116 000 (not 112 000)', () => {
+    const saturday = new Date(2026, 10, 7); // 2026-11-07 Sat  (nights: Sat + Sun)
+    // weekend surcharge: 12 000 * 2 = 24 000
+    // 80 000 + 24 000 + 12 000 = 116 000
+    expect(calcTotalBill(10000, saturday, 2, 4, true, true, false, 1000)).toBe(116000);
+  });
+
+  // en-US locale: Plan with special offers — $70, 1 guest, 1 night
+  it('en-US plan-with-special-offers: weekend stay yields $91.00 (not $87.50)', () => {
+    const saturday = new Date(2026, 10, 7); // 2026-11-07 Sat
+    // 70 + round(70*3*1/10) = 70 + 21 = 91
+    expect(calcTotalBill(70, saturday, 1, 1, false, false, false, 0)).toBe(91);
+  });
+
+  // en-US locale: Premium plan — $100, 4 guests, 2 nights, breakfast + early-check-in ($10 each)
+  it('en-US premium-plan: Saturday start with breakfast+earlyCheckIn yields $1 160 (not $1 120)', () => {
+    const saturday = new Date(2026, 10, 7); // Sat + Sun: 2 weekend nights
+    // base: 100*4*2=800  breakfast: 10*4*2=80  earlyCheckIn: 10*4=40  surcharge: round(100*3*4/10)*2=240
+    expect(calcTotalBill(100, saturday, 2, 4, true, true, false, 10)).toBe(1160);
+  });
+
+  it('en-US premium-plan: Friday/Sunday start with breakfast+earlyCheckIn yields $1 040 (not $1 020)', () => {
+    const friday = new Date(2026, 10, 6); // Fri + Sat: 1 weekend night (Sat)
+    // surcharge: round(100*3*4/10)=120
+    // 800 + 120 + 120 = 1 040
+    expect(calcTotalBill(100, friday, 2, 4, true, true, false, 10)).toBe(1040);
+  });
+});
