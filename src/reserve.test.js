@@ -188,6 +188,15 @@ describe('reserve.js', () => {
     expect($('#reserve-form').hasClass('was-validated')).toBe(true);
   });
 
+  it('configures datepicker with 120-day max booking window', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    const options = $('#date').data('datepicker-options');
+    expect(options.maxDate).toBe(120);
+  });
+
   it('redirects when getJSON returns plan user cannot access', async () => {
     setGetJSONData(planData);
     mountHtml(reservePageHtml);
