@@ -99,6 +99,57 @@ describe('calcTotalBill', () => {
   });
 });
 
+describe('E2E scenario reproduction', () => {
+  // These tests document the exact values the E2E tests (MagicPod) check.
+  // They serve as a regression guard: if billing.js drifts from E2E expectations,
+  // these fast unit tests catch it before browser tests run.
+  const saturday = new Date(2020, 2, 7); // 2020-03-07 is a known Saturday
+  const sunday = new Date(2020, 2, 8);
+  const friday = new Date(2020, 2, 6);
+  const monday = new Date(2020, 2, 2);
+
+  describe('Plan with special offers ($70 / 7000¥, 1 night, 1 person)', () => {
+    it('weekday: no surcharge', () => {
+      expect(calcTotalBill(70, monday, 1, 1, false, false, false, 10)).toBe(70);
+      expect(calcTotalBill(7000, monday, 1, 1, false, false, false, 1000)).toBe(7000);
+    });
+
+    it('weekend: applies 30% surcharge (not 25%)', () => {
+      // 70 + round(70*3*1/10) = 70 + 21 = 91 (not 87.50 from old 25%)
+      expect(calcTotalBill(70, saturday, 1, 1, false, false, false, 10)).toBe(91);
+      // 7000 + round(7000*3*1/10) = 7000 + 2100 = 9100 (not 8750)
+      expect(calcTotalBill(7000, saturday, 1, 1, false, false, false, 1000)).toBe(9100);
+    });
+  });
+
+  describe('Premium plan ($100 / 10000¥, 2 nights, 4 people, breakfast+earlyCheckIn)', () => {
+    it('weekday check-in: no surcharge', () => {
+      // 100*4*2 + 10*4*2 (breakfast) + 10*4 (earlyCheckIn) = 800+80+40 = 920
+      expect(calcTotalBill(100, monday, 2, 4, true, true, false, 10)).toBe(920);
+      expect(calcTotalBill(10000, monday, 2, 4, true, true, false, 1000)).toBe(92000);
+    });
+
+    it('saturday check-in: 2 weekend nights (Sat+Sun) at 30%', () => {
+      // surcharge per night = round(100*3*4/10) = 120; x2 nights = 240
+      // 920 + 240 = 1160 (not 1120 from old 25%)
+      expect(calcTotalBill(100, saturday, 2, 4, true, true, false, 10)).toBe(1160);
+      expect(calcTotalBill(10000, saturday, 2, 4, true, true, false, 1000)).toBe(116000);
+    });
+
+    it('friday check-in: 1 weekend night (Sat) at 30%', () => {
+      // surcharge = round(100*3*4/10) = 120; 920 + 120 = 1040 (not 1020)
+      expect(calcTotalBill(100, friday, 2, 4, true, true, false, 10)).toBe(1040);
+      expect(calcTotalBill(10000, friday, 2, 4, true, true, false, 1000)).toBe(104000);
+    });
+
+    it('sunday check-in: 1 weekend night (Sun) at 30%', () => {
+      // surcharge = 120; 920 + 120 = 1040 (not 1020)
+      expect(calcTotalBill(100, sunday, 2, 4, true, true, false, 10)).toBe(1040);
+      expect(calcTotalBill(10000, sunday, 2, 4, true, true, false, 1000)).toBe(104000);
+    });
+  });
+});
+
 describe('property-based', () => {
   it('returns a finite non-negative total for positive inputs', () => {
     fc.assert(
