@@ -85,6 +85,42 @@ describe('reserve.js', () => {
     expect($('#date').val()).toBeTruthy();
   });
 
+  it('datepicker maxDate matches the 120-day validation booking window', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    const options = $('#date').data('datepicker-options');
+    expect(options.maxDate).toBe(120);
+  });
+
+  it('accepts and stores reservation for a date 100 days ahead', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    try {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(2026, 5, 4, 12, 0, 0));
+      const hundredDaysAhead = new Date(2026, 8, 12);
+      const dateStr = hundredDaysAhead.getMonth() + 1 + '/' + hundredDaysAhead.getDate() + '/' + hundredDaysAhead.getFullYear();
+      $('#date').val(dateStr);
+      vi.spyOn($('#date')[0], 'checkValidity').mockReturnValue(true);
+      vi.spyOn($('#reserve-form')[0], 'checkValidity').mockReturnValue(true);
+      $('#term').val('3');
+      $('#head-count').val('2');
+      $('#username').val('テスト太郎');
+      $('#contact').val('no');
+      $('#reserve-form').trigger('submit');
+      expect(document.cookie).toContain('transaction=');
+      const transactionId = document.cookie.match(/transaction=([^;]+)/)[1];
+      const stored = JSON.parse(sessionStorage.getItem(transactionId));
+      expect(stored.date).toBe('2026-09-12');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('returns early from total update when date cannot be parsed', async () => {
     mountHtml(reservePageHtml);
     setLocation('/en-US/reserve.html', '?plan-id=4');
