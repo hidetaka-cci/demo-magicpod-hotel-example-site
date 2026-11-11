@@ -75,6 +75,34 @@ describe('reserve.js', () => {
     expect($('#email').parent().hasClass('d-none')).toBe(true);
   });
 
+  it('configures datepicker maxDate to 120 to match the 4-month booking window', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    const options = $('#date').data('datepicker-options');
+    expect(options.maxDate).toBe(120);
+  });
+
+  it('does not reject a date 100 days ahead during form change validation', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    try {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(2026, 5, 4, 12, 0, 0)); // June 4, 2026 noon
+      // 100 days from June 4 is September 12, 2026 (en-US: 09/12/2026)
+      $('#date').val('09/12/2026');
+      vi.spyOn($('#date')[0], 'checkValidity').mockReturnValue(true);
+      vi.spyOn($('#term')[0], 'checkValidity').mockReturnValue(false);
+      $('#date').trigger('change');
+      expect($('#date')[0].validationMessage).toBe('');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('triggers change when datepicker selects a date', async () => {
     mountHtml(reservePageHtml);
     setLocation('/en-US/reserve.html', '?plan-id=4');
