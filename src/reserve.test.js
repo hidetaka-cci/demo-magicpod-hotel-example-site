@@ -195,4 +195,32 @@ describe('reserve.js', () => {
     await loadPageScript('reserve.js');
     expect(getAssignMock()).toHaveBeenCalled();
   });
+
+  it('configures datepicker maxDate to 120 days matching the 4-month booking window', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    const options = $('#date').data('datepicker-options');
+    expect(options.maxDate).toBe(120);
+  });
+
+  it('accepts date validation on change for a date 100 days in advance', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    try {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(2026, 5, 4, 14, 0, 0));
+      $('#date').val('09/12/2026');
+      vi.spyOn($('#date')[0], 'checkValidity').mockReturnValue(true);
+      vi.spyOn($('#term')[0], 'checkValidity').mockReturnValue(true);
+      vi.spyOn($('#head-count')[0], 'checkValidity').mockReturnValue(true);
+      $('#date').trigger('change');
+      expect($('#date')[0].validationMessage).toBeFalsy();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
