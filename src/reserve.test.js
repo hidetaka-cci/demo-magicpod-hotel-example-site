@@ -195,4 +195,13 @@ describe('reserve.js', () => {
     await loadPageScript('reserve.js');
     expect(getAssignMock()).toHaveBeenCalled();
   });
+
+  it('sets datepicker maxDate to 120 to match the 4-month booking window', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    const options = $('#date').data('datepicker-options');
+    expect(options.maxDate).toBe(120);
+  });
 });
