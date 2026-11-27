@@ -177,6 +177,23 @@ describe('reserve.js', () => {
     expect($('#reserve-form').hasClass('was-validated')).toBe(true);
   });
 
+  it('sets custom validity on submit when date passes HTML5 validation but fails custom validation', async () => {
+    mountHtml(reservePageHtml);
+    setLocation('/en-US/reserve.html', '?plan-id=4');
+    await loadPageScript('reserve.js');
+
+    try {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date(2026, 5, 5, 12, 0, 0));
+      $('#date').val('06/04/2026');
+      vi.spyOn($('#date')[0], 'checkValidity').mockReturnValue(true);
+      $('#reserve-form').trigger('submit');
+      expect($('#date')[0].validationMessage).toBeTruthy();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('returns false and shows validation on invalid submit', async () => {
     mountHtml(reservePageHtml);
     setLocation('/en-US/reserve.html', '?plan-id=4');
