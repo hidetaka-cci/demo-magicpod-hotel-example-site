@@ -99,6 +99,67 @@ describe('calcTotalBill', () => {
   });
 });
 
+describe('calcTotalBill - E2E plan scenarios (30% weekend surcharge)', () => {
+  // Nov 28, 2026 is a Saturday — use as a stable reference weekend day
+  const saturday = new Date(2026, 10, 28);
+
+  it('ja plan-0 (roomBill=7000): weekday stay = 7000', () => {
+    const monday = new Date(2026, 10, 30); // Monday
+    expect(calcTotalBill(7000, monday, 1, 1, false, false, false, 0)).toBe(7000);
+  });
+
+  it('ja plan-0 (roomBill=7000): weekend stay = 9100 (30% surcharge)', () => {
+    expect(calcTotalBill(7000, saturday, 1, 1, false, false, false, 0)).toBe(9100);
+  });
+
+  it('en-US plan-0 (roomBill=70): weekday stay = 70', () => {
+    const monday = new Date(2026, 10, 30);
+    expect(calcTotalBill(70, monday, 1, 1, false, false, false, 0)).toBe(70);
+  });
+
+  it('en-US plan-0 (roomBill=70): weekend stay = 91 (30% surcharge)', () => {
+    expect(calcTotalBill(70, saturday, 1, 1, false, false, false, 0)).toBe(91);
+  });
+
+  it('ja premium plan: Saturday 2 nights, 4 people, breakfast+earlyCheckIn = 116000', () => {
+    expect(calcTotalBill(10000, saturday, 2, 4, true, true, false, 1000)).toBe(116000);
+  });
+
+  it('ja premium plan: Friday 2 nights (Fri+Sat), 4 people, breakfast+earlyCheckIn = 104000', () => {
+    const friday = new Date(2026, 10, 27); // Friday
+    expect(calcTotalBill(10000, friday, 2, 4, true, true, false, 1000)).toBe(104000);
+  });
+
+  it('ja premium plan: Sunday 2 nights (Sun+Mon), 4 people, breakfast+earlyCheckIn = 104000', () => {
+    const sunday = new Date(2026, 10, 29); // Sunday
+    expect(calcTotalBill(10000, sunday, 2, 4, true, true, false, 1000)).toBe(104000);
+  });
+
+  it('ja premium plan: weekday 2 nights, 4 people, breakfast+earlyCheckIn = 92000', () => {
+    const monday = new Date(2026, 10, 30);
+    expect(calcTotalBill(10000, monday, 2, 4, true, true, false, 1000)).toBe(92000);
+  });
+
+  it('en-US premium plan: Saturday 2 nights, 4 people, breakfast+earlyCheckIn = 1160', () => {
+    expect(calcTotalBill(100, saturday, 2, 4, true, true, false, 10)).toBe(1160);
+  });
+
+  it('en-US premium plan: Friday 2 nights (Fri+Sat), 4 people, breakfast+earlyCheckIn = 1040', () => {
+    const friday = new Date(2026, 10, 27);
+    expect(calcTotalBill(100, friday, 2, 4, true, true, false, 10)).toBe(1040);
+  });
+
+  it('en-US premium plan: Sunday 2 nights (Sun+Mon), 4 people, breakfast+earlyCheckIn = 1040', () => {
+    const sunday = new Date(2026, 10, 29);
+    expect(calcTotalBill(100, sunday, 2, 4, true, true, false, 10)).toBe(1040);
+  });
+
+  it('en-US premium plan: weekday 2 nights, 4 people, breakfast+earlyCheckIn = 920', () => {
+    const monday = new Date(2026, 10, 30);
+    expect(calcTotalBill(100, monday, 2, 4, true, true, false, 10)).toBe(920);
+  });
+});
+
 describe('property-based', () => {
   it('returns a finite non-negative total for positive inputs', () => {
     fc.assert(
